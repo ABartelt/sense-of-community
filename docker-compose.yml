@@ -2,33 +2,35 @@
 version: '3'
 
 services:
-  mysql-postfix:
-    image: mysql:5.7
-    restart: always
-    environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: 1
-      MYSQL_DATABASE: postfixadmin
-      MYSQL_USER: postfixadmin
-      MYSQL_PASSWORD_FILE: /run/secrets/mysql-passwd
-    secrets:
-      - mysql-passwd
+  # mysql-postfix:
+  #   image: mysql:5.7
+  #   restart: always
+  #   environment:
+  #     MYSQL_RANDOM_ROOT_PASSWORD: 1
+  #     MYSQL_DATABASE: postfixadmin
+  #     MYSQL_USER: postfixadmin
+  #     MYSQL_PASSWORD_FILE: /run/secrets/mysql-passwd
+  #   ports:
+  #     - 3306:3306
+  #   secrets:
+  #     - mysql-passwd
 
-  postfixadmin:
-    depends_on:
-      - db
-    image: postfixadmin
-    ports:
-      - 8000:80
-    restart: always
-    environment:
-      POSTFIXADMIN_DB_TYPE: mysqli
-      POSTFIXADMIN_DB_HOST: mysql-postfix
-      POSTFIXADMIN_DB_USER_FILE: /run/secrets/postfix-db-user
-      POSTFIXADMIN_DB_NAME: postfixadmin
-      POSTFIXADMIN_DB_PASSWORDFILE: /run/secrets/postfix-db-passwd
-    secrets:
-      - postfix-db-user
-      - postfix-db-passwd
+  # postfixadmin:
+  #   depends_on:
+  #     - db
+  #   image: postfixadmin
+  #   ports:
+  #     - 8000:80
+  #   restart: always
+  #   environment:
+  #     POSTFIXADMIN_DB_TYPE: mysqli
+  #     POSTFIXADMIN_DB_HOST: mysql-postfix
+  #     POSTFIXADMIN_DB_USER_FILE: /run/secrets/postfix-db-user
+  #     POSTFIXADMIN_DB_NAME: postfixadmin
+  #     POSTFIXADMIN_DB_PASSWORDFILE: /run/secrets/postfix-db-passwd
+  #   secrets:
+  #     - postfix-db-user
+  #     - postfix-db-passwd
 
 # reverseproxy NGINX
 #  nginx:
@@ -44,10 +46,13 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres-passwd
-      LANG: de_DE.utf8
+#      LANG: de_DE.utf8
+#      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=de-DE"
     volumes:
-      - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
     secrets:
       - postgres-passwd
 
@@ -64,7 +69,8 @@ services:
     restart: always
     ports:
       - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    command: redis-server --save 20 1 --loglevel warning 
+#--requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes: 
       - redis-data:/data
 
@@ -76,8 +82,7 @@ services:
       - /var/pretix-data:/data
       - /etc/pretix:/etc/pretix
     ports:
-    - 8345:80
-
+    - 8081:80
 
 volumes:
   db-data:
@@ -87,9 +92,9 @@ volumes:
 secrets:
   postgres-passwd:
     file: ./secrets/postgres-passwd.txt
-  mysql-passwd:
-    file: ./secrets/mysql-passwd.txt
-  postfix-db-user:
-    file: ./secrets/postfix-db-user.txt
-  postfix-db-passwd:
-    file: ./secrets/postfix-db-passwd.txt
+  # mysql-passwd:
+  #   file: ./secrets/mysql-passwd.txt
+  # postfix-db-user:
+  #   file: ./secrets/postfix-db-user.txt
+  # postfix-db-passwd:
+  #   file: ./secrets/postfix-db-passwd.txt
