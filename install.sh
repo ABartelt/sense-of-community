@@ -17,4 +17,4 @@ chmod 0700 /etc/pretix/pretix.cfg
 cp pretix.cfg /etc/pretix.cfg
 
 # Docker
-docker stack deploy -c docker-compose.yml ttl
+docker stack deploy -c docker-compose.yml ttn
