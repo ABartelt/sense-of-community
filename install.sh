@@ -6,9 +6,6 @@ NOW=$( date '+%F_%H:%M:%S' )
 mkdir ~/pretix-secrets-$NOW
 cp ./secrets/*.txt ~/pretix-secrets-$NOW/
 
-# Traefik
-
-
 # Pretix
 mkdir -p /var/pretix-data
 chown -R 15371:15371 /var/pretix-data
