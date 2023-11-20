@@ -52,6 +52,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
           script: |
-            ./opt/install.sh
-            docker stack deploy traefik -f opt/traefik/docker-compose.yml up -d
-            docker stack deploy pretix -f opt/pretix/docker-compose.yml up -d
+            sudo ./opt/install.sh
