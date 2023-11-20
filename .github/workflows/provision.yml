@@ -52,4 +52,11 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
           script: |
-            sudo ./opt/install.sh
+            # Create volumes for docker
+            chown -R 15371:15371 /opt/pretix/pretix-data/
+            chown -R 15371:15371 /opt/pretix/etc/
+            # etc folder and config file
+            chmod 0700 /opt/pretix/etc/pretix.cfg
+            # Docker stack deploys
+            docker stack deploy -c traefik/docker-compose.yml traefik
+            docker stack deploy -c pretix/docker-compose.yml pretix

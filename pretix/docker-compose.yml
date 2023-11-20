@@ -30,8 +30,8 @@ services:
   pretix:
     image: pretix/standalone:stable
     volumes:
-      - /var/pretix-data:/data
-      - /etc/pretix:/etc/pretix
+      - ./pretix-data:/data
+      - ./etc:/etc/pretix
     ports:
     - 8081:80
     labels:
