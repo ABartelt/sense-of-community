@@ -8,6 +8,7 @@ jobs:
   scp-files:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    environment: production
     steps:
       - uses: actions/checkout@v3
       - name: replace
@@ -26,8 +27,6 @@ jobs:
           sed -i "s/PRETIX_INSTANCE_NAME/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/pretix.cfg
 
           sed -i "s/POSTGRES_ADMIN_PASSWORD/${{ env.POSTGRES_ADMIN_PASSWORD }}/g" pretix/docker-compose.yml
-          
-          
 
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
@@ -35,12 +34,12 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
           source: "install.sh, pretix/, traefik/, backups/"
           target: opt/
   provision:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    environment: production
     needs:
       - scp-files
     steps:
