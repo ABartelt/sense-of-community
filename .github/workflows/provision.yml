@@ -14,16 +14,20 @@ jobs:
         # create a job step replace env variables in init.sql and pretix.cfg
         # TODO: Mailconfig
         run: |
-          sed -i "s/POSTGRES_USER/${{ secrets.POSTGRES_USER }}/g" pretix/init.sql
-          sed -i "s/POSTGRES_DB/${{ secrets.POSTGRES_DB }}/g" pretix/init.sql
-          sed -i "s/POSTGRES_DB/${{ secrets.POSTGRES_PASSWORD }}/g" pretix/init.sql
+          sed -i "s/PRETIX_POSTGRES_USER/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/init.sql
+          sed -i "s/PRETIX_POSTGRES_DB/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/init.sql
+          sed -i "s/PRETIX_POSTGRES_PASSWORD/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/init.sql
          
-          sed -i "s/POSTGRES_USER/${{ secrets.POSTGRES_USER }}/g" pretix/pretix.cfg
-          sed -i "s/POSTGRES_DB/${{ secrets.POSTGRES_DB }}/g" pretix/pretix.cfg
-          sed -i "s/POSTGRES_PASSWORD/${{ secrets.POSTGRES_PASSWORD }}/g" pretix/pretix.cfg
+          sed -i "s/PRETIX_POSTGRES_USER/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/pretix.cfg
+          sed -i "s/PRETIX_POSTGRES_DB/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/pretix.cfg
+          sed -i "s/PRETIX_POSTGRES_PASSWORD/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/pretix.cfg
           
           sed -i "s/PRETIX_HOSTNAME/${{ env.PRETIX_HOSTNAME }}/g" pretix/pretix.cfg
           sed -i "s/PRETIX_INSTANCE_NAME/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/pretix.cfg
+
+          sed -i "s/POSTGRES_ADMIN_PASSWORD/${{ env.POSTGRES_ADMIN_PASSWORD }}/g" pretix/docker-compose.yml
+          
+          
 
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
