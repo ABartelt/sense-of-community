@@ -1,0 +1,65 @@
+# Postfix
+version: '3'
+
+services:
+# Postgres
+# Use postgres/example user/password credentials
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-passwd
+#      LANG: de_DE.utf8
+#      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=de-DE"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    secrets:
+      - postgres-passwd
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+# Redis
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+#--requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - redis-data:/data
+
+
+# Pretix
+  pretix:
+    image: pretix/standalone:stable
+    volumes:
+      - /var/pretix-data:/data
+      - /etc/pretix:/etc/pretix
+    ports:
+    - 8081:80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pretix.rule=Host(`hu.technotuev.de`)"
+      - "traefik.http.routers.pretix.entrypoints=websecure"
+      - "traefik.http.routers.pretix.tls=true"
+      - "traefik.http.routers.pretix.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pretix.service=pretix"
+      - "traefik.http.services.pretix.loadbalancer.server.port=80"
+    networks:
+      - proxy
+
+volumes:
+  db-data:
+  redis-data:
+
+secrets:
+  postgres-passwd:
+    file: ./secrets/postgres-passwd.txt

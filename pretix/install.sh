@@ -6,6 +6,9 @@ NOW=$( date '+%F_%H:%M:%S' )
 mkdir ~/pretix-secrets-$NOW
 cp ./secrets/*.txt ./pretix-secrets-$NOW/
 
+# Traefik
+
+
 # Pretix
 mkdir -p /var/pretix-data
 chown -R 15371:15371 /var/pretix-data
@@ -18,4 +21,5 @@ chmod 0700 /etc/pretix/pretix.cfg
 #cp pretix.cfg /etc/pretix.cfg
 
 # Docker
+docker stack deploy -c traefik/docker-compose.yml traefik
 docker stack deploy -c docker-compose.yml ttn
