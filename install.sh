@@ -3,8 +3,8 @@
 apt install pwgen
 ./generate_secrets.sh
 NOW=$( date '+%F_%H:%M:%S' )
-mkdir ~/pretix-secrets-$NOW
-cp ./secrets/*.txt ./pretix-secrets-$NOW/
+mkdir ./secrets/pretix-secrets-$NOW
+cp ./secrets/*.txt ./secrets/pretix-secrets-$NOW/
 
 # Pretix
 mkdir -p /var/pretix-data
