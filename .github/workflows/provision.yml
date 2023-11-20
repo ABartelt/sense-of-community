@@ -1,0 +1,39 @@
+name: "Backend deploy via vapor."
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment name'
+        default: 'staging'
+        required: true
+        type: string
+jobs:
+  scp-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: copy file via ssh key
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: "pretix/, traefik/"
+          target: opt/
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: print out example job
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ inputs.hostname }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          command_timeout: 30m
+          script: |
+            docker stack deploy traefik -f opt/traefik/docker-compose.yml up -d
+            docker stack deploy pretix -f opt/pretix/docker-compose.yml up -d

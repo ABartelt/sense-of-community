@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.10
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # THe HTTPS port
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+      - ./letsencrypt:/letsencrypt
+    # Dynamic Configuration
+    labels:
+      - "traefik.http.routers.dashboard-secure.rule=Host(`traefik.technotuev.de`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard-secure.entrypoints=websecure"
+      - "traefik.http.routers.dashboard-secure.tls=true"
+      - "traefik.http.routers.dashboard-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard-secure.service=api@internal"
+      - "traefik.http.routers.dashboard-secure.middlewares=dashboard-auth"
+      # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
+      # To create user:password pair, it's possible to use this command:
+      # echo $(htpasswd -nB user) | sed -e s/\\$/\\$\\$/g
+      #
+      # Also note that dollar signs should NOT be doubled when they are not evaluated (e.g. Ansible docker_container module).
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$2y$$05$$eF6pos1Mn/Ms8Jb7I0Y9VODvfvDOfDZQH4AhxJJgyO9d7cbJp66h2"
+
+networks:
+  proxy:
+    external: true
+  default:
+    driver: bridge
