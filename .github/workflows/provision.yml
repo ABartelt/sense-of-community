@@ -24,6 +24,9 @@ jobs:
           
           sed -i "s/PRETIX_HOSTNAME/${{ env.PRETIX_HOSTNAME }}/g" pretix/pretix.cfg
           sed -i "s/PRETIX_INSTANCE_NAME/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/pretix.cfg
+
+          sed -i "s/POSTGRES_ADMIN_PASSWORD/${{ env.POSTGRES_ADMIN_PASSWORD }}/g" pretix/docker-compose.yml
+          
           
 
       - name: copy file via ssh key
