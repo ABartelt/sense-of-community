@@ -41,6 +41,8 @@ jobs:
   provision:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    needs:
+      - scp-files
     steps:
       - name: Spin up traefik and pretix
         uses: appleboy/ssh-action@v0.1.10
