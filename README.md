@@ -15,3 +15,10 @@ Befor the installation you need to adjust the `pretix.cfg` to your needs.
 The stack should be installed with the `install.sh` script.</br>
 The Script generates all needed Passwords as Docker secret files in the subdirectory `./secrets`, prepares directories to mount to pretix Container and starts the docker stack afterwards.</br>
 To prevent the Passwords from loss they are copied to a folder `~/pretix-secrets-$( date '+%F_%H:%M:%S' )/`
+
+## Variables and Secrets to be replaced
+- POSTGRES_PASSWORD
+- POSTGRES_USER
+- POSTGRES_DB
+- PRETIX_INSTANCE_NAME
+- PRETIX_HOSTNAME

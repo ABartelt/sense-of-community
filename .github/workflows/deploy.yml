@@ -3,13 +3,8 @@ name: Install all requirements on server
 on:
   push:
     branches:
-      - develop
       - main
 jobs:
-  staging:
-    if: github.ref_name == 'develop'
-    uses: ./.github/workflows/provision.yml
-    secrets: inherit
   production:
     if: github.ref_name == 'main'
     uses: ./.github/workflows/provision.yml
