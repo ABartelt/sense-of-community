@@ -8,9 +8,7 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-passwd
-#      LANG: de_DE.utf8
-#      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=de-DE"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data:/var/lib/postgresql/data
