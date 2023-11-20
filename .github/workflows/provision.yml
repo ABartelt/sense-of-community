@@ -24,27 +24,27 @@ jobs:
           
           sed -i "s/PRETIX_HOSTNAME/${{ env.PRETIX_HOSTNAME }}/g" pretix/pretix.cfg
           sed -i "s/PRETIX_INSTANCE_NAME/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/pretix.cfg
-          
 
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.HOST }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           source: "install.sh, pretix/, traefik/, backups/"
           target: opt/
   provision:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: print out example job
+      - name: Spin up traefik and pretix
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ inputs.hostname }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
           script: |
             ./opt/install.sh
