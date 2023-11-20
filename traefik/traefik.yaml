@@ -2,8 +2,6 @@
 #
 # Configuration sample for Traefik v2.
 #
-# For Traefik v1: https://github.com/traefik/traefik/blob/v1.7/traefik.sample.toml
-#
 ################################################################
 
 ################################################################
@@ -137,7 +135,9 @@ api:
 
 providers:
   # Enable Docker configuration backend
-  docker: {}
+  docker:
+    watch: true
+    network: proxy
     # Docker server endpoint. Can be a tcp or a unix socket endpoint.
     #
     # Required

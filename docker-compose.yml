@@ -77,7 +77,14 @@ services:
       - /etc/pretix:/etc/pretix
     ports:
     - 8345:80
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pretix.rule=Host(`hu.technotuev.de`)"
+      - "traefik.http.routers.pretix.entrypoints=websecure"
+      - "traefik.http.routers.pretix.tls=true"
+      - "traefik.http.routers.pretix.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pretix.service=pretix"
+      - "traefik.http.services.pretix.loadbalancer.server.port=80"
 
 volumes:
   db-data:
