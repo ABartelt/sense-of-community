@@ -1,0 +1,52 @@
+name: "Pretix deploy"
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  scp-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: replace
+        # create a job step replace env variables in init.sql and pretix.cfg
+        # TODO: Mailconfig
+        run: |
+          sed -i "s/POSTGRES_USER/${{ secrets.POSTGRES_USER }}/g" pretix/init.sql
+          sed -i "s/POSTGRES_DB/${{ secrets.POSTGRES_DB }}/g" pretix/init.sql
+          sed -i "s/POSTGRES_DB/${{ secrets.POSTGRES_PASSWORD }}/g" pretix/init.sql
+         
+          sed -i "s/POSTGRES_USER/${{ secrets.POSTGRES_USER }}/g" pretix/pretix.cfg
+          sed -i "s/POSTGRES_DB/${{ secrets.POSTGRES_DB }}/g" pretix/pretix.cfg
+          sed -i "s/POSTGRES_PASSWORD/${{ secrets.POSTGRES_PASSWORD }}/g" pretix/pretix.cfg
+          
+          sed -i "s/PRETIX_HOSTNAME/${{ env.PRETIX_HOSTNAME }}/g" pretix/pretix.cfg
+          sed -i "s/PRETIX_INSTANCE_NAME/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/pretix.cfg
+          
+
+      - name: copy file via ssh key
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          source: "install.sh, pretix/, traefik/, backups/"
+          target: opt/
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: print out example job
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ inputs.hostname }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          command_timeout: 30m
+          script: |
+            ./opt/install.sh
+            docker stack deploy traefik -f opt/traefik/docker-compose.yml up -d
+            docker stack deploy pretix -f opt/pretix/docker-compose.yml up -d

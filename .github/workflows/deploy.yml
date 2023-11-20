@@ -1,0 +1,11 @@
+name: Install all requirements on server
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  production:
+    if: github.ref_name == 'main'
+    uses: ./.github/workflows/provision.yml
+    secrets: inherit

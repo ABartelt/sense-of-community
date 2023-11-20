@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  # Generate a sidecar service for backups of postgres in network proxy hourly to /var/backup and save only 60 days
+  postgres-backup:
+      image: postgres:13-alpine
+      restart: always
+      environment:
+        POSTGRES_PxSSWORD_FILE: /run/secrets/postgres-passwd
+      volumes:
+      - db-data:/var/lib/postgresql/data
+      - /var/backup:/var/backup
+      command: >
+        bash -c '
+            while true; do
+            pg_dumpall -h postgres -U postgres | gzip > /var/backup/$(date +%Y-%m-%d-%H-%M-%S).sql.gz
+            sleep 3600
+            find /var/backup -mtime +60 -type f -delete
+            done'
+      secrets:
+      - postgres-passwd
+      networks:
+      - proxy
