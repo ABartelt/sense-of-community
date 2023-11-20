@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "pretix/*.*,traefik/*.*,backups/*.*"
-          target: opt/
+          target: /opt/
   provision:
     runs-on: ubuntu-latest
     timeout-minutes: 5
