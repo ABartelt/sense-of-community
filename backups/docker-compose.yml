@@ -1,23 +1,16 @@
 version: '3'
 
 services:
-  # Generate a sidecar service for backups of postgres in network proxy hourly to /var/backup and save only 60 days
+  # Generate a sidecar service for backups of postgres database with pg_dump hourly to /var/backup and save only 60 days and password is in environemnt var POSTGRES_PASSWORD
   postgres-backup:
-      image: postgres:13-alpine
+      image: postgres:13
       restart: always
       environment:
-        POSTGRES_PxSSWORD_FILE: /run/secrets/postgres-passwd
+        POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+        POSTGRES_DB: ${PRETIX_POSTGRES_DB}
       volumes:
       - db-data:/var/lib/postgresql/data
       - /var/backup:/var/backup
-      command: >
-        bash -c '
-            while true; do
-            pg_dumpall -h postgres -U postgres | gzip > /var/backup/$(date +%Y-%m-%d-%H-%M-%S).sql.gz
-            sleep 3600
-            find /var/backup -mtime +60 -type f -delete
-            done'
-      secrets:
-      - postgres-passwd
+      command: bash -c "while true; do pg_dump -h postgres -U ${POSTGRES_ADMIN_PASSWORD} -d ${PRETIX_POSTGRES_DB} > /var/backup/backup.sql; sleep 3600; done"
       networks:
-      - proxy
+        - pretix

@@ -8,7 +8,7 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: POSTGRES_ADMIN_PASSWORD
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data:/var/lib/postgresql/data
@@ -25,7 +25,6 @@ services:
     volumes:
       - redis-data:/data
 
-
   # Pretix
   pretix:
     image: pretix/standalone:stable
@@ -35,16 +34,22 @@ services:
     ports:
     - 8081:80
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pretix.rule=Host(`hu.technotuev.de`)"
-      - "traefik.http.routers.pretix.entrypoints=websecure"
-      - "traefik.http.routers.pretix.tls=true"
-      - "traefik.http.routers.pretix.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.pretix.service=pretix"
-      - "traefik.http.services.pretix.loadbalancer.server.port=8081"
+      traefik.enable: true
+      traefik.http.routers.pretix.rule: Host(`${PRETIX_HOSTNAME}`)
+      traefik.http.routers.pretix.entrypoints: websecure
+      traefik.http.routers.pretix.tls: true
+      traefik.http.routers.pretix.tls.certresolver: letsencrypt
+      traefik.http.routers.pretix.service: pretix
+      traefik.http.services.pretix.loadbalancer.server.port: 8081
     networks:
       - proxy
 
 volumes:
   db-data:
   redis-data:
+
+networks:
+    pretix:
+      driver: bridge
+    proxy:
+      external: true

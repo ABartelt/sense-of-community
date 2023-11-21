@@ -11,23 +11,19 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v3
-      - name: replace
-        # create a job step replace env variables in init.sql and pretix.cfg
-        # TODO: Mailconfig
+      - name: Replace env variables in init.sql for pretix postgres database
         run: |
-          sed -i "s/PRETIX_POSTGRES_USER/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/init.sql
-          sed -i "s/PRETIX_POSTGRES_DB/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/init.sql
-          sed -i "s/PRETIX_POSTGRES_PASSWORD/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/init.sql
-         
-          sed -i "s/PRETIX_POSTGRES_USER/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/etc/pretix.cfg
-          sed -i "s/PRETIX_POSTGRES_DB/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/etc/pretix.cfg
-          sed -i "s/PRETIX_POSTGRES_PASSWORD/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/etc/pretix.cfg
-          
-          sed -i "s/PRETIX_HOSTNAME/${{ env.PRETIX_HOSTNAME }}/g" pretix/etc/pretix.cfg
-          sed -i "s/PRETIX_INSTANCE_NAME/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/etc/pretix.cfg
+          sed -i "s/${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/init.sql
+          sed -i "s/${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/init.sql
+          sed -i "s/${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/init.sql
+      - name: replace pretix config file with env vars
+        run: |
+          sed -i "s/${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/etc/pretix.cfg
+          sed -i "s/${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/etc/pretix.cfg
+          sed -i "s/${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/etc/pretix.cfg
 
-          sed -i "s/POSTGRES_ADMIN_PASSWORD/${{ env.POSTGRES_ADMIN_PASSWORD }}/g" pretix/docker-compose.yml
-
+          sed -i "s/${PRETIX_HOSTNAME}/${{ env.PRETIX_HOSTNAME }}/g" pretix/etc/pretix.cfg
+          sed -i "s/${PRETIX_INSTANCE_NAME}/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/etc/pretix.cfg
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -51,12 +47,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
+          script-stop: true
+          envs: POSTGRES_ADMIN_PASSWORD, PRETIX_HOSTNAME, PRETIX_POSTGRES_DB, POSTGRES_ADMIN_PASSWORD,PRETIX_POSTGRES_DB
           script: |
-            # Create volumes for docker
-            chown -R 15371:15371 /opt/pretix/pretix-data/
-            chown -R 15371:15371 /opt/pretix/etc/
-            # etc folder and config file
-            chmod 0700 /opt/pretix/etc/pretix.cfg
             # Docker stack deploys
             docker stack deploy -c traefik/docker-compose.yml traefik
             docker stack deploy -c pretix/docker-compose.yml pretix
+            #docker stack deploy -c backups/docker-compose.yml backup
