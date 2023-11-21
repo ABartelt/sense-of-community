@@ -36,7 +36,7 @@ services:
     environment:
       PRETIX_HOSTNAME: ${PRETIX_HOSTNAME}
     labels:
-      traefik.enable: true
+      traefik.enable: "true"
       traefik.http.routers.pretix.rule: "Host(`${PRETIX_HOSTNAME}`)"
       traefik.http.routers.pretix.entrypoints: "websecure"
       traefik.http.routers.pretix.tls: "true"
