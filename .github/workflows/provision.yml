@@ -55,7 +55,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
           script-stop: true
-          envs: POSTGRES_ADMIN_PASSWORD, PRETIX_HOSTNAME, PRETIX_POSTGRES_DB, POSTGRES_ADMIN_PASSWORD,PRETIX_POSTGRES_DB
+          envs: PRETIX_HOSTNAME, PRETIX_POSTGRES_DB, POSTGRES_ADMIN_PASSWORD, PRETIX_POSTGRES_DB
           script: |
             # Docker stack deploys
             docker network create --driver=overlay proxy
