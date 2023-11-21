@@ -29,7 +29,7 @@ services:
   pretix:
     image: pretix/standalone:stable
     volumes:
-      - ./pretix-data:/data
+      - pretix-data:/data
       - ./etc:/etc/pretix
     ports:
     - 8345:8345
@@ -49,6 +49,7 @@ services:
 volumes:
   db-data:
   redis-data:
+  pretix-data:
 
 networks:
     pretix:
