@@ -21,9 +21,16 @@ jobs:
           sed -i "s/\${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/etc/pretix.cfg
           sed -i "s/\${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/etc/pretix.cfg
           sed -i "s/\${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_MAIL_HOST}/${{ secrets.PRETIX_MAIL_HOST }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_MAIL_USER}/${{ secrets.PRETIX_MAIL_USER }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_MAIL_PASSWORD}/${{ secrets.PRETIX_MAIL_PASSWORD }}/g" pretix/etc/pretix.cfg
+          
+          sed -i "s/\${PRETIX_HOSTNAME}/${{ vars.PRETIX_HOSTNAME }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_INSTANCE_NAME}/${{ vars.PRETIX_INSTANCE_NAME }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_MAIL_PORT}/${{ vars.PRETIX_MAIL_PORT }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_MAIL_FROM}/${{ vars.PRETIX_MAIL_FROM }}/g" pretix/etc/pretix.cfg
+          
 
-          sed -i "s/\${PRETIX_HOSTNAME}/${{ env.PRETIX_HOSTNAME }}/g" pretix/etc/pretix.cfg
-          sed -i "s/\${PRETIX_INSTANCE_NAME}/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/etc/pretix.cfg
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -51,6 +58,6 @@ jobs:
           envs: POSTGRES_ADMIN_PASSWORD, PRETIX_HOSTNAME, PRETIX_POSTGRES_DB, POSTGRES_ADMIN_PASSWORD,PRETIX_POSTGRES_DB
           script: |
             # Docker stack deploys
-            docker stack deploy -c traefik/docker-compose.yml traefik
-            docker stack deploy -c pretix/docker-compose.yml pretix
+            docker stack deploy -c /opt/traefik/docker-compose.yml traefik
+            docker stack deploy -c /opt/pretix/docker-compose.yml pretix
             #docker stack deploy -c backups/docker-compose.yml backup
