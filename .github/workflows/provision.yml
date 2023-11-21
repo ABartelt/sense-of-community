@@ -58,6 +58,7 @@ jobs:
           envs: POSTGRES_ADMIN_PASSWORD, PRETIX_HOSTNAME, PRETIX_POSTGRES_DB, POSTGRES_ADMIN_PASSWORD,PRETIX_POSTGRES_DB
           script: |
             # Docker stack deploys
+            docker network create --driver=overlay proxy
             docker stack deploy -c /opt/traefik/docker-compose.yml traefik
             docker stack deploy -c /opt/pretix/docker-compose.yml pretix
             #docker stack deploy -c backups/docker-compose.yml backup
