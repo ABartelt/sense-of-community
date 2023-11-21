@@ -33,13 +33,15 @@ services:
       - ./etc:/etc/pretix
     ports:
     - 8081:80
+    environment:
+      PRETIX_HOSTNAME: ${PRETIX_HOSTNAME}
     labels:
       traefik.enable: true
-      traefik.http.routers.pretix.rule: Host(`${PRETIX_HOSTNAME}`)
-      traefik.http.routers.pretix.entrypoints: websecure
-      traefik.http.routers.pretix.tls: true
-      traefik.http.routers.pretix.tls.certresolver: letsencrypt
-      traefik.http.routers.pretix.service: pretix
+      traefik.http.routers.pretix.rule: "Host(`${PRETIX_HOSTNAME}`)"
+      traefik.http.routers.pretix.entrypoints: "websecure"
+      traefik.http.routers.pretix.tls: "true"
+      traefik.http.routers.pretix.tls.certresolver: "letsencrypt"
+      traefik.http.routers.pretix.service: "pretix"
       traefik.http.services.pretix.loadbalancer.server.port: 8081
     networks:
       - proxy
