@@ -13,19 +13,17 @@ jobs:
       - uses: actions/checkout@v3
       - name: Replace env variables in init.sql for pretix postgres database
         run: |
-          sed -i '' "s/\${PRETIX_POSTGRES_USER}/test123/g" pretix/init.sql
-          sed -i '' "s/\${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g"  pretix/init.sql
-          sed -i '' "s/\${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/init.sql
-          sed -i '' "s/\${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/init.sql
-          sed -i '' "s/\${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/init.sql
+          sed -i "s/\${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/init.sql
+          sed -i "s/\${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/init.sql
+          sed -i "s/\${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/init.sql
       - name: replace pretix config file with env vars
         run: |
-          sed -i '' "s/\${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/etc/pretix.cfg
-          sed -i '' "s/\${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/etc/pretix.cfg
-          sed -i '' "s/\${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_POSTGRES_USER}/${{ secrets.PRETIX_POSTGRES_USER }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_POSTGRES_DB}/${{ secrets.PRETIX_POSTGRES_DB }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_POSTGRES_PASSWORD}/${{ secrets.PRETIX_POSTGRES_PASSWORD }}/g" pretix/etc/pretix.cfg
 
-          sed -i '' "s/\${PRETIX_HOSTNAME}/${{ env.PRETIX_HOSTNAME }}/g" pretix/etc/pretix.cfg
-          sed -i '' "s/\${PRETIX_INSTANCE_NAME}/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_HOSTNAME}/${{ env.PRETIX_HOSTNAME }}/g" pretix/etc/pretix.cfg
+          sed -i "s/\${PRETIX_INSTANCE_NAME}/${{ env.PRETIX_INSTANCE_NAME }}/g" pretix/etc/pretix.cfg
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.4
         with:
