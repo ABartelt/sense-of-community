@@ -36,7 +36,7 @@ services:
       - pretix-data:/data
       - ./etc:/etc/pretix
     ports:
-    - 8080:80
+    - 8081:80
     environment:
       PRETIX_HOSTNAME: ${PRETIX_HOSTNAME}
     labels:
@@ -47,7 +47,7 @@ services:
       traefik.http.routers.pretix.tls: "true"
       traefik.http.routers.pretix.tls.certresolver: "letsencrypt"
       traefik.http.routers.pretix.service: "pretix"
-      traefik.http.services.pretix.loadbalancer.server.port: 8080
+      traefik.http.services.pretix.loadbalancer.server.port: 8081
 
       treafik.http.routers.pretix-http.rule: "Host(`hu.technotuev.de`)"
       treafik.http.routers.pretix-http.entrypoints: "web"
