@@ -14,6 +14,8 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    labels:
+      traefik.enable: "false"
 
   # Redis
   redis:
@@ -24,6 +26,8 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-data:/data
+    labels:
+      traefik.enable: "false"
 
   # Pretix
   pretix:
@@ -32,17 +36,26 @@ services:
       - pretix-data:/data
       - ./etc:/etc/pretix
     ports:
-    - 80:80
+    - 8080:80
     environment:
       PRETIX_HOSTNAME: ${PRETIX_HOSTNAME}
     labels:
       traefik.enable: "true"
+      # SSL Router and configuration
       traefik.http.routers.pretix.rule: "Host(`hu.technotuev.de`)"
       traefik.http.routers.pretix.entrypoints: "websecure"
       traefik.http.routers.pretix.tls: "true"
       traefik.http.routers.pretix.tls.certresolver: "letsencrypt"
       traefik.http.routers.pretix.service: "pretix"
-      traefik.http.services.pretix.loadbalancer.server.port: 80
+      traefik.http.services.pretix.loadbalancer.server.port: 8080
+
+      treafik.http.routers.pretix-http.rule: "Host(`hu.technotuev.de`)"
+      treafik.http.routers.pretix-http.entrypoints: "web"
+      # Create a middleware named `redirect-to-https` middleware to redirect from http to https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+      # Apply the middleware named `redirect-to-https` to the router named `pretix`
+      traefik.http.routers.pretix-http.middlewares: "redirect-to-https"
+
     networks:
       - proxy
 
