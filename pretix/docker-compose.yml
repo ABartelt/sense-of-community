@@ -16,6 +16,8 @@ services:
       - 5432:5432
     labels:
       traefik.enable: "false"
+    networks:
+      - pretix
 
   # Redis
   redis:
@@ -28,6 +30,8 @@ services:
       - redis-data:/data
     labels:
       traefik.enable: "false"
+    networks:
+      - pretix
 
   # Pretix
   pretix:
@@ -58,6 +62,7 @@ services:
 
     networks:
       - proxy
+      - pretix
 
 volumes:
   db-data:
