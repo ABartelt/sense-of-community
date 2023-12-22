@@ -1,9 +1,9 @@
 name: "Pretix deploy"
 
 on:
-  push:
-    branches:
-      - main
+  #push:
+  #  branches:
+  #    - main
 jobs:
   scp-files:
     runs-on: ubuntu-latest
