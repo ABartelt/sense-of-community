@@ -11,13 +11,13 @@ services:
       - "80:80"
       # THe HTTPS port
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yaml:/etc/traefik/traefik.yaml
       - ./letsencrypt:/letsencrypt
+    networks:
+      - proxy
     # Dynamic Configuration
     labels:
       - "traefik.http.routers.dashboard-secure.rule=Host(`traefik.technotuev.de`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
@@ -32,7 +32,6 @@ services:
       #
       # Also note that dollar signs should NOT be doubled when they are not evaluated (e.g. Ansible docker_container module).
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$2y$$05$$eF6pos1Mn/Ms8Jb7I0Y9VODvfvDOfDZQH4AhxJJgyO9d7cbJp66h2"
-
 networks:
   proxy:
-    driver: swarm
+    external: true

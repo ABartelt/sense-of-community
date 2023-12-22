@@ -16,7 +16,23 @@ services:
       - 5432:5432
     labels:
       traefik.enable: "false"
-
+    networks:
+      - pretix
+  postgres-backup:
+    volumes:
+      - /var/backup:/var/backup
+      - ./backup_script.sh:/backup_script.sh
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      POSTGRES_DB: ${PRETIX_POSTGRES_DB}
+    command: >
+      bash -c "chmod +x /backup_script.sh && /backup_script.sh"
+    networks:
+      - pretix
   # Redis
   redis:
     image: redis:6.2-alpine
@@ -26,6 +42,8 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-data:/data
+    networks:
+      - pretix
     labels:
       traefik.enable: "false"
 
@@ -36,28 +54,26 @@ services:
       - pretix-data:/data
       - ./etc:/etc/pretix
     ports:
-    - 8081:80
+    - "8081:80"
     environment:
       PRETIX_HOSTNAME: ${PRETIX_HOSTNAME}
+    networks:
+      - proxy
+      - pretix
     labels:
       traefik.enable: "true"
-      # SSL Router and configuration
-      traefik.http.routers.pretix.rule: "Host(`hu.technotuev.de`)"
-      traefik.http.routers.pretix.entrypoints: "websecure"
-      traefik.http.routers.pretix.tls: "true"
-      traefik.http.routers.pretix.tls.certresolver: "letsencrypt"
-      traefik.http.routers.pretix.service: "pretix"
-      traefik.http.services.pretix.loadbalancer.server.port: 8081
+      # TLS Router and configuration
+      traefik.http.routers.pretix-https.rule: "Host(`hu.technotuev.de`)"
+      traefik.http.routers.pretix-https.tls: "true"
+      traefik.http.routers.pretix-https.tls.certresolver: "letsencrypt"
 
+      # HTTP Router configuration
       treafik.http.routers.pretix-http.rule: "Host(`hu.technotuev.de`)"
       treafik.http.routers.pretix-http.entrypoints: "web"
       # Create a middleware named `redirect-to-https` middleware to redirect from http to https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
       # Apply the middleware named `redirect-to-https` to the router named `pretix`
       traefik.http.routers.pretix-http.middlewares: "redirect-to-https"
-
-    networks:
-      - proxy
 
 volumes:
   db-data:
@@ -66,6 +82,5 @@ volumes:
 
 networks:
     pretix:
-      driver: bridge
     proxy:
       external: true
