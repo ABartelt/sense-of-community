@@ -1,16 +1,17 @@
 # sense-of-community
 Is a hosting of pretix as a private party guest management tool. The goal is to provide a simple and easy  guest management
-Pretix is provided via traefik as reverse-proxy. We do you an external smtp server for sending emails.
-The configruation takes place in `pretix.cfg` under `[mail]`.
+Pretix is provided via traefik as reverse-proxy. 
+We do you an external smtp server for sending emails. The configruation takes place in `pretix.cfg` under `[mail]`.
 ## Docker-Compose
 The Docker-Compose file contains the full softwarestack needed to run Pretix. It should contain
-- Postgres
+- postgres
+- postgres-backup
 - redis
 - nginx
 - pretix
 
 ## Installation
-Befor the installation you need to adjust the `pretix.cfg` to your needs.
+Before the installation you need to adjust the `pretix.cfg` to your needs.
 
 The stack should be installed with the `install.sh` script.</br>
 The Script generates all needed Passwords as Docker secret files in the subdirectory `./secrets`, prepares directories to mount to pretix Container and starts the docker stack afterwards.</br>

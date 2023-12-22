@@ -3,7 +3,6 @@ version: '3'
 
 services:
   # Postgres
-  # Use postgres/example user/password credentials
   postgres:
     image: postgres
     restart: always
@@ -18,7 +17,9 @@ services:
       traefik.enable: "false"
     networks:
       - pretix
+  # Generate a sidecar service for backups of postgres database
   postgres-backup:
+    image: postgres
     volumes:
       - /var/backup:/var/backup
       - ./backup_script.sh:/backup_script.sh
@@ -53,8 +54,6 @@ services:
     volumes:
       - pretix-data:/data
       - ./etc:/etc/pretix
-    ports:
-    - "8081:80"
     environment:
       PRETIX_HOSTNAME: ${PRETIX_HOSTNAME}
     networks:
@@ -62,25 +61,31 @@ services:
       - pretix
     labels:
       traefik.enable: "true"
-      # TLS Router and configuration
+      # SSL Router and configuration
       traefik.http.routers.pretix-https.rule: "Host(`hu.technotuev.de`)"
+      treafik.http.routers.pretix-https.entrypoints: "websecure"
       traefik.http.routers.pretix-https.tls: "true"
       traefik.http.routers.pretix-https.tls.certresolver: "letsencrypt"
 
-      # HTTP Router configuration
       treafik.http.routers.pretix-http.rule: "Host(`hu.technotuev.de`)"
       treafik.http.routers.pretix-http.entrypoints: "web"
       # Create a middleware named `redirect-to-https` middleware to redirect from http to https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
       # Apply the middleware named `redirect-to-https` to the router named `pretix`
-      traefik.http.routers.pretix-http.middlewares: "redirect-to-https"
-
+      #traefik.http.routers.pretix-http.middlewares: "redirect-to-https"
+      traefik.http.routers.pretix-https.middlewares: "pretix-auth"
+      # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
+      # To create user:password pair, it's possible to use this command:
+      # echo $(htpasswd -nB user) | sed -e s/\\$/\\$\\$/g
+      #
+      # Also note that dollar signs should NOT be doubled when they are not evaluated (e.g. Ansible docker_container module).
+      traefik.http.middlewares.pretix-auth.basicauth.users: "mein:$$2y$$05$$1uNhZQOvaBe7CrfcBukG7e9deWDDGcV08EHhxA8rhRrw0wrjGdlGy"
 volumes:
   db-data:
   redis-data:
   pretix-data:
 
 networks:
-    pretix:
-    proxy:
-      external: true
+  pretix:
+  proxy:
+    external: true
