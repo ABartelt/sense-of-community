@@ -17,9 +17,27 @@ The stack should be installed with the `install.sh` script.</br>
 The Script generates all needed Passwords as Docker secret files in the subdirectory `./secrets`, prepares directories to mount to pretix Container and starts the docker stack afterwards.</br>
 To prevent the Passwords from loss they are copied to a folder `~/pretix-secrets-$( date '+%F_%H:%M:%S' )/`
 
-## Variables and Secrets to be replaced
-- POSTGRES_PASSWORD
-- POSTGRES_USER
-- POSTGRES_DB
-- PRETIX_INSTANCE_NAME
-- PRETIX_HOSTNAME
+## Variables and secrets to be replaced in .env
+- PRETIX_HOSTNAME= Should be something like https://pretix.example.com
+- PRETIX_INSTANCE_NAME= Name your instance, e.g. "My Pretix"
+### Database
+- POSTGRES_ADMIN_PASSWORD=
+- PRETIX_POSTGRES_PASSWORD=
+- PRETIX_POSTGRES_USER=
+- PRETIX_POSTGRES_DB=
+
+### Mail settings
+- PRETIX_MAIL_HOST=
+- PRETIX_MAIL_USER=
+- PRETIX_MAIL_PASSWORD=
+- PRETIX_MAIL_PORT=
+- PRETIX_MAIL_FROM=
+
+# Run
+```bash
+sudo docker network create --driver=overlay proxy
+docker stack deploy -c /opt/traefik/docker-compose.yml traefik
+chown -R 15371:15371 ./pretix/etc/
+chmod 0700 ./pretix/etc/pretix.cfg
+docker stack deploy -c /opt/pretix/docker-compose.yml pretix
+```

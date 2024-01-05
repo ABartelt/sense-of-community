@@ -62,12 +62,12 @@ services:
     labels:
       traefik.enable: "true"
       # SSL Router and configuration
-      traefik.http.routers.pretix-https.rule: "Host(`hu.technotuev.de`)"
+      traefik.http.routers.pretix-https.rule: "Host(`${PRETIX_HOSTNAME}`)"
       treafik.http.routers.pretix-https.entrypoints: "websecure"
       traefik.http.routers.pretix-https.tls: "true"
       traefik.http.routers.pretix-https.tls.certresolver: "letsencrypt"
 
-      treafik.http.routers.pretix-http.rule: "Host(`hu.technotuev.de`)"
+      treafik.http.routers.pretix-http.rule: "Host(`${PRETIX_HOSTNAME}`)"
       treafik.http.routers.pretix-http.entrypoints: "web"
       # Create a middleware named `redirect-to-https` middleware to redirect from http to https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
