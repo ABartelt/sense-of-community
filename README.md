@@ -27,7 +27,6 @@ sudo docker network create --driver=overlay proxy
 # Create .env file if it doesn't exist and fill it with some random passwords
 if [ ! -f .env ]; then
     cp .env.example .env
-
     # Parse each entry of .env.example and generate a password for it
     value=$(openssl rand -base64 6)
     sed -i '' "s/POSTGRES_ADMIN_PASSWORD=/POSTGRES_ADMIN_PASSWORD=$value/g" .env
