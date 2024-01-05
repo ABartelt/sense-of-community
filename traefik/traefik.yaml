@@ -33,7 +33,7 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: arne@technotuev.de
+      email: ${TRAEFIK_LETS_ENCRYPT_EMAIL}
       storage: /letsencrypt/acme.json
       httpChallenge:
         # used during the challenge
