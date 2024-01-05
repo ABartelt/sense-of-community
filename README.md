@@ -56,13 +56,6 @@ There are a couple of docker-compose files which contains the full softwarestack
 - [traefik](https://doc.traefik.io/traefik/) as reverse-proxy
 - [pretix](https://docs.pretix.eu/en/latest/admin/installation/docker_smallscale.html) as the main tool for guest management.
 
-## Installation
-Before the installation you need to adjust the `pretix.cfg` to your needs.
-
-The stack should be installed with the `install.sh` script.</br>
-The Script generates all needed Passwords as Docker secret files in the subdirectory `./secrets`, prepares directories to mount to pretix Container and starts the docker stack afterwards.</br>
-To prevent the Passwords from loss they are copied to a folder `~/pretix-secrets-$( date '+%F_%H:%M:%S' )/`
-
 ## Configuration
 Variables and secrets that could be replaced in `.env`
 Everything else should be configured in the `pretix.cfg` file. You find the full configuration options for pretix [here](https://docs.pretix.eu/en/latest/admin/config.html). 
