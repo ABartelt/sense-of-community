@@ -1,3 +1,6 @@
+# Postfix
+version: '3'
+
 services:
   odoo:
     image: odoo:18.0
@@ -18,16 +21,16 @@ services:
     labels:
       traefik.enable: "true"
       # SSL Router and configuration
-      traefik.http.routers.pretix-https.rule: "Host(`${ODOO_HOSTNAME}`)"
-      treafik.http.routers.pretix-https.entrypoints: "websecure"
-      traefik.http.routers.pretix-https.tls: "true"
-      traefik.http.routers.pretix-https.tls.certresolver: "letsencrypt"
+      traefik.http.routers.odoo-https.rule: "Host(`${ODOO_HOSTNAME}`)"
+      treafik.http.routers.odoo-https.entrypoints: "websecure"
+      traefik.http.routers.odoo-https.tls: "true"
+      traefik.http.routers.odoo-https.tls.certresolver: "letsencrypt"
 
-      treafik.http.routers.pretix-http.rule: "Host(`${ODOO_HOSTNAME}`)"
-      treafik.http.routers.pretix-http.entrypoints: "web"
+      treafik.http.routers.odoo-http.rule: "Host(`${ODOO_HOSTNAME}`)"
+      treafik.http.routers.odoo-http.entrypoints: "web"
       # Create a middleware named `redirect-to-https` middleware to redirect from http to https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
-      # Apply the middleware named `redirect-to-https` to the router named `pretix`
+      # Apply the middleware named `redirect-to-https` to the router named `odoo`
       #traefik.http.routers.pretix-http.middlewares: "redirect-to-https"
   postgres:
     image: postgres
