@@ -1,10 +1,10 @@
 <img src="sense-of-community-logo.png" alt="drawing" width="300"/>
 
 Sense of community is a deployment of a tool set for private parties.
-The goal is to provide a toolchain to manage guests as well as helpers seamlessly. 
+The goal is to provide a toolchain to manage guests as well as helpers seamlessly.
 The main application used for this purpose is [pretix](https://pretix.eu/about/en/).
 
-[Pretix](https://pretix.eu/about/en/) and other services are provided via [traefik](https://doc.traefik.io/traefik/) as reverse-proxy. 
+[Pretix](https://pretix.eu/about/en/) and other services are provided via [traefik](https://doc.traefik.io/traefik/) as reverse-proxy.
 We recommend to use an external smtp server for sending emails. The configuration of a self-hosted e-mail service is not that easy.
 
 ## Requirements
@@ -34,6 +34,8 @@ if [ ! -f .env ]; then
     sed -i '' "s/PRETIX_POSTGRES_PASSWORD=/PRETIX_POSTGRES_PASSWORD=$value/g" .env
     value=$(openssl rand -base64 6)
     sed -i '' "s/PRETIX_POSTGRES_USER=/PRETIX_POSTGRES_USER=$value/g" .env
+    value=$(openssl rand -base64 6)
+    sed -i '' "s/ODOO_POSTGRES_PASSWORD=/ODOO_POSTGRES_PASSWORD=$value/g" .env
 fi
 ```
 **3.** Replacing the variables of your `.env` in all config files. See [Configuration](#configuration) for more information.
@@ -46,6 +48,7 @@ sudo chown -R 15371:15371 /opt/sense-of-community/pretix/etc/
 sudo chmod 0700 /opt/sense-of-community/pretix/etc/pretix.cfg
 docker stack deploy -c /opt/sense-of-community/traefik/docker-compose.yml traefik
 docker stack deploy -c /opt/sense-of-community/pretix/docker-compose.yml pretix
+docker stack deploy -c /opt/sense-of-community/odoo/docker-compose.yml odoo
 ```
 
 ## Services provided in this deployment
@@ -55,10 +58,11 @@ There are a couple of docker-compose files which contains the full softwarestack
 - [redis](https://redis.io/) as cache and message broker
 - [traefik](https://doc.traefik.io/traefik/) as reverse-proxy
 - [pretix](https://docs.pretix.eu/en/latest/admin/installation/docker_smallscale.html) as the main tool for guest management.
+- [odoo](https://www.odoo.com/de_DE/app/point-of-sale-shop) as the point of sale tool
 
 ## Configuration
 Variables and secrets that could be replaced in `.env`
-Everything else should be configured in the `pretix.cfg` file. You find the full configuration options for pretix [here](https://docs.pretix.eu/en/latest/admin/config.html). 
+Everything else should be configured in the `pretix.cfg` file. You find the full configuration options for pretix [here](https://docs.pretix.eu/en/latest/admin/config.html).
 
 | Section             | Key                          | Default Value              | Description                                                                                                             |
 |---------------------|------------------------------|----------------------------|-------------------------------------------------------------------------------------------------------------------------|

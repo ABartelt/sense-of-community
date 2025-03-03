@@ -1,0 +1,50 @@
+services:
+  odoo:
+    image: odoo:18.0
+    depends_on:
+      - postgres
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+    environment:
+    - HOST=postgres
+    - USER=odoo
+    - PASSWORD=${ODOO_POSTGRES_PASSWORD}
+    networks:
+      - proxy
+      - odoo
+    labels:
+      traefik.enable: "true"
+      # SSL Router and configuration
+      traefik.http.routers.pretix-https.rule: "Host(`${ODOO_HOSTNAME}`)"
+      treafik.http.routers.pretix-https.entrypoints: "websecure"
+      traefik.http.routers.pretix-https.tls: "true"
+      traefik.http.routers.pretix-https.tls.certresolver: "letsencrypt"
+
+      treafik.http.routers.pretix-http.rule: "Host(`${ODOO_HOSTNAME}`)"
+      treafik.http.routers.pretix-http.entrypoints: "web"
+      # Create a middleware named `redirect-to-https` middleware to redirect from http to https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+      # Apply the middleware named `redirect-to-https` to the router named `pretix`
+      #traefik.http.routers.pretix-http.middlewares: "redirect-to-https"
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${ODOO_POSTGRES_PASSWORD}
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+volumes:
+  odoo-web-data:
+  odoo-db-data:
+
+networks:
+  odoo:
+  proxy:
+    external: true
