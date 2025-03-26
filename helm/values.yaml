@@ -1,0 +1,101 @@
+global:
+  environment: production
+  domain: der-ttn.de
+
+# PostgreSQL HA configuration
+postgresql-ha:
+  enabled: true
+  primary:
+    persistence:
+      size: 10Gi
+      storageClass: "microk8s-hostpath"
+  secondary:
+    persistence:
+      size: 10Gi
+      storageClass: "microk8s-hostpath"
+  postgresql:
+    username: postgres
+    password: ${POSTGRES_ADMIN_PASSWORD}
+    database: ${PRETIX_POSTGRES_DB}
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Redis Cluster configuration
+redis-cluster:
+  enabled: true
+  auth:
+    enabled: true
+    password: ${REDIS_PASSWORD}
+  master:
+    persistence:
+      size: 10Gi
+      storageClass: "microk8s-hostpath"
+  replica:
+    persistence:
+      size: 10Gi
+      storageClass: "microk8s-hostpath"
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Keycloak configuration
+keycloak:
+  enabled: true
+  auth:
+    adminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: true
+    hostname: auth.der-ttn.de
+    tls: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: postgresql-ha
+    port: 5432
+    user: postgres
+    database: keycloak
+    password: ${POSTGRES_ADMIN_PASSWORD}
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Pretix configuration
+pretix:
+  enabled: true
+  image:
+    repository: pretix/standalone
+    tag: stable
+  persistence:
+    size: 10Gi
+    storageClass: "microk8s-hostpath"
+  ingress:
+    enabled: true
+    hostname: ${PRETIX_HOSTNAME}
+    tls: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+  env:
+    - name: PRETIX_HOSTNAME
+      value: ${PRETIX_HOSTNAME}
+    - name: POSTGRES_HOST
+      value: postgresql-ha
+    - name: POSTGRES_DB
+      value: ${PRETIX_POSTGRES_DB}
+    - name: POSTGRES_USER
+      value: postgres
+    - name: POSTGRES_PASSWORD
+      value: ${POSTGRES_ADMIN_PASSWORD}
+    - name: REDIS_HOST
+      value: redis-cluster-master
+    - name: REDIS_PORT
+      value: "6379"
+    - name: REDIS_PASSWORD
+      value: ${REDIS_PASSWORD} 

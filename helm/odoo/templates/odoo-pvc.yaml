@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-web-data
+  labels:
+    app: odoo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.webData.size }}
+  {{- if .Values.persistence.webData.storageClass }}
+  storageClassName: {{ .Values.persistence.webData.storageClass }}
+  {{- end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-db-data
+  labels:
+    app: odoo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.dbData.size }}
+  {{- if .Values.persistence.dbData.storageClass }}
+  storageClassName: {{ .Values.persistence.dbData.storageClass }}
+  {{- end }} 

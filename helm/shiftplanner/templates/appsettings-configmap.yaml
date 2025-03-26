@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shiftplanner-appsettings
+  labels:
+    app: shiftplanner
+data:
+  appsettings.json: |
+    {
+        "OAuth": {
+            "Audience": "shift-planner",
+            "Authority": "https://{{ .Values.keycloak.url }}/realms/{{ .Values.keycloak.realm }}",
+            "AdminUser": "{{ .Values.keycloak.adminUser }}",
+            "AdminPassword": "{{ .Values.keycloak.adminPassword }}"
+        },
+        "ShiftApi": {
+            "BaseUrl": "https://{{ .Values.api.hostname }}"
+        },
+        "Cors": {
+            "Origins": [
+                "https://{{ .Values.client.hostname }},https://{{ .Values.keycloak.url }},localhost"
+            ]
+        },
+        "Logging": {
+            "LogLevel": {
+                "Default": "{{ .Values.logging.defaultLevel }}",
+                "Microsoft.AspNetCore": "{{ .Values.logging.aspNetCoreLevel }}",
+                "HubConnection": "{{ .Values.logging.hubConnectionLevel }}",
+                "System": "{{ .Values.logging.systemLevel }}"
+            }
+        }
+    } 

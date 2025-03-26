@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: {{ .Values.postgresBackup.schedule | quote }}
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: postgres-backup
+            image: {{ .Values.postgresBackup.image.repository }}:{{ .Values.postgresBackup.image.tag }}
+            env:
+            - name: MUDDI_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: muddi-user
+            - name: MUDDI_POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: muddi-db
+            - name: RETENTION_DAYS
+              value: {{ .Values.postgresBackup.retentionDays | quote }}
+            volumeMounts:
+            - name: backup-volume
+              mountPath: {{ .Values.postgresBackup.volume.mountPath }}
+            command: ["/bin/bash", "-c"]
+            args:
+            - |
+              {{ .Values.postgresBackup.script }}
+          volumes:
+          - name: backup-volume
+            persistentVolumeClaim:
+              claimName: postgres-backup-pvc
+          restartPolicy: OnFailure 

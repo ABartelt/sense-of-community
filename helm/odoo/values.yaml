@@ -1,0 +1,79 @@
+global:
+  domain: der-ttn.de
+
+odoo:
+  image:
+    repository: odoo
+    tag: "18.0"
+    pullPolicy: IfNotPresent
+  hostname: pos.{{ .Values.global.domain }}
+  persistence:
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  config:
+    # Add your Odoo configuration here
+    addons_path: /mnt/extra-addons
+    admin_passwd: "admin"  # Change this in production
+  adminPassword: admin
+  logLevel: info
+  workers: 2
+
+postgresql:
+  enabled: true
+  service:
+    name: odoo-postgresql
+  auth:
+    username: odoo
+    password: odoo
+    database: odoo
+  primary:
+    persistence:
+      size: 10Gi
+      storageClass: standard
+
+persistence:
+  webData:
+    size: 10Gi
+    storageClass: standard
+  dbData:
+    size: 10Gi
+    storageClass: standard
+
+postgresql-ha:
+  enabled: true
+  auth:
+    username: odoo
+    database: postgres
+    password: ""  # Will be set via secrets
+  primary:
+    persistence:
+      size: 10Gi
+  read:
+    replicaCount: 1
+  service:
+    type: ClusterIP
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: pos.{{ .Values.global.domain }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: odoo-tls
+      hosts:
+        - pos.{{ .Values.global.domain }}
+
+secrets:
+  postgres:
+    password: ""  # Will be set during installation 

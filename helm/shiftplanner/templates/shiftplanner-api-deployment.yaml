@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiftplanner-api
+  labels:
+    app: shiftplanner-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shiftplanner-api
+  template:
+    metadata:
+      labels:
+        app: shiftplanner-api
+    spec:
+      containers:
+      - name: shiftplanner-api
+        image: {{ .Values.shiftPlannerApi.image.repository }}:{{ .Values.shiftPlannerApi.image.tag }}
+        env:
+        - name: Database__USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: muddi-user
+        - name: Database__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: muddi-password
+        - name: Database__Name
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: muddi-db
+        {{- range $key, $value := .Values.shiftPlannerApi.environment }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        ports:
+        - containerPort: 8080 

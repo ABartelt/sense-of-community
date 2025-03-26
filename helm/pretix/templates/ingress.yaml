@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pretix
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: {{ .Values.pretix.ingress.tls.certResolver }}
+    {{- if .Values.pretix.ingress.auth.enabled }}
+    traefik.ingress.kubernetes.io/router.middlewares: pretix-auth
+    {{- end }}
+spec:
+  rules:
+  - host: {{ .Values.pretix.ingress.hostname }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pretix
+            port:
+              number: 80 

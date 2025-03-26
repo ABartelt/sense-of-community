@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+  labels:
+    app: odoo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odoo
+  template:
+    metadata:
+      labels:
+        app: odoo
+    spec:
+      containers:
+      - name: odoo
+        image: "{{ .Values.odoo.image.repository }}:{{ .Values.odoo.image.tag }}"
+        imagePullPolicy: {{ .Values.odoo.image.pullPolicy }}
+        ports:
+        - containerPort: 8069
+          name: http
+        env:
+        - name: HOST
+          value: "{{ .Values.postgresql.service.name }}"
+        - name: USER
+          value: "{{ .Values.postgresql.auth.username }}"
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: odoo-postgresql
+              key: postgres-password
+        volumeMounts:
+        - name: odoo-web-data
+          mountPath: /var/lib/odoo
+        - name: odoo-config
+          mountPath: /etc/odoo
+        resources:
+          {{- toYaml .Values.odoo.resources | nindent 12 }}
+      volumes:
+      - name: odoo-web-data
+        persistentVolumeClaim:
+          claimName: odoo-web-data
+      - name: odoo-config
+        configMap:
+          name: odoo-config 

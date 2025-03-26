@@ -1,0 +1,21 @@
+{
+    "name": "Techno TÜV Nord Schichtplanner",
+    "short_name": "TTN-shifts",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#090786",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "favicon.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "favicon.ico",
+            "type": "image/x-icon",
+            "sizes": "192x192"
+        }
+    ]
+}

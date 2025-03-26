@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pretix-backup
+  labels:
+    app: pretix
+spec:
+  schedule: "0 * * * *"  # Every hour
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:14
+            env:
+            - name: POSTGRES_HOST
+              value: {{ .Values.externalDatabase.host | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.externalDatabase.user | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pretix-secrets
+                  key: database-password
+            - name: POSTGRES_DB
+              value: {{ .Values.externalDatabase.database | quote }}
+            volumeMounts:
+            - name: backup-script
+              mountPath: /backup-script.sh
+              subPath: backup-script.sh
+            - name: backup-volume
+              mountPath: /var/backup
+            command:
+            - /bin/bash
+            - /backup-script.sh
+          volumes:
+          - name: backup-script
+            configMap:
+              name: backup-script
+              defaultMode: 0755
+          - name: backup-volume
+            persistentVolumeClaim:
+              claimName: pretix-backup-pvc
+          restartPolicy: OnFailure 

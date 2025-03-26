@@ -1,3 +1,95 @@
+# Sense of Community Infrastructure
+
+This repository contains the infrastructure configuration for various community applications, including deployment configurations for both Docker and Kubernetes environments.
+
+## Repository Structure
+
+```
+.
+├── microk8s-ansible/          # Ansible playbooks for MicroK8s installation
+│   ├── hosts                 # Ansible inventory file
+│   ├── microk8s-playbook.yml # Main playbook for MicroK8s setup
+│   └── requirements.yml      # Ansible dependencies
+│
+├── helm/                     # Kubernetes Helm charts
+│   ├── sense-of-community/  # Main Helm chart (parent)
+│   │   ├── Chart.yaml      # Chart definition and dependencies
+│   │   ├── values.yaml     # Default configuration values
+│   │   └── README.md       # Chart documentation
+│   ├── pretix/            # Pretix Helm chart (subchart)
+│   ├── odoo/              # Odoo Helm chart (subchart)
+│   └── shiftplanner/      # ShiftPlanner Helm chart (subchart)
+│
+└── docker-stack/            # Docker Compose configurations
+    ├── traefik/           # Traefik reverse proxy configuration
+    ├── pretix/            # Pretix application
+    │   ├── docker-compose.yml
+    │   ├── etc/          # Configuration files
+    │   └── init.sql      # Database initialization
+    ├── odoo/             # Odoo application
+    │   ├── docker-compose.yml
+    │   └── config/       # Configuration files
+    └── shiftplanner/     # ShiftPlanner application
+        ├── docker-compose.yml
+        ├── config/       # Configuration files
+        └── manifest.json # Application manifest
+```
+
+## Components
+
+### 1. MicroK8s Ansible
+Contains Ansible playbooks for automated installation and configuration of MicroK8s on target servers.
+
+### 2. Helm Charts
+The `helm` directory contains:
+- Main chart `sense-of-community` that manages all applications and their shared infrastructure:
+  - Shared PostgreSQL HA database (Bitnami)
+  - Shared Redis Cluster (Bitnami)
+  - Shared Keycloak authentication (Bitnami)
+- Application subcharts:
+  - Pretix chart
+  - Odoo chart
+  - ShiftPlanner chart
+
+### 3. Docker Stack
+Contains Docker Compose configurations for each application, useful for development or standalone deployments:
+- Traefik reverse proxy
+- Pretix with configuration
+- Odoo with configuration
+- ShiftPlanner with configuration
+
+## Getting Started
+
+### For Kubernetes Deployment
+1. Install MicroK8s using the Ansible playbook:
+```bash
+cd microk8s-ansible
+ansible-playbook -i hosts microk8s-playbook.yml
+```
+
+2. Deploy applications using Helm:
+```bash
+cd helm
+helm dependency update sense-of-community
+helm install sense-of-community ./sense-of-community -f my-values.yaml -n your-namespace
+```
+
+### For Docker Deployment
+Use the Docker Compose configurations in the `docker-stack` directory:
+```bash
+cd docker-stack
+cp .env.example .env  # Configure your environment variables
+docker-compose -f traefik/docker-compose.yml up -d  # Start Traefik first
+cd [application]
+docker-compose up -d
+```
+
+## Documentation
+
+- [MicroK8s Installation Guide](microk8s-ansible/README.md)
+- [Helm Chart Documentation](helm/sense-of-community/README.md)
+- Individual application documentation in their respective directories
+
 <img src="sense-of-community-logo.png" alt="drawing" width="300"/>
 
 Sense of community is a deployment of a tool set for private parties.
@@ -9,7 +101,7 @@ We recommend to use an external smtp server for sending emails. The configuratio
 
 ## Requirements
 This list is not complete. Please check the documentation of the tools for further information.
-- [docker](https://docs.docker.com/engine/install/)
+- [docker](https://docs.docker.com/engine/install/)t
 - [docker-compose](https://docs.docker.com/compose/install/)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - **Optional:** [openssl](https://www.openssl.org/) only for random password generation

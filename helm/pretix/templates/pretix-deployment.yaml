@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pretix
+  labels:
+    app: pretix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pretix
+  template:
+    metadata:
+      labels:
+        app: pretix
+    spec:
+      containers:
+      - name: pretix
+        image: {{ .Values.pretix.image.repository }}:{{ .Values.pretix.image.tag }}
+        env:
+        - name: PRETIX_HOSTNAME
+          value: {{ .Values.pretix.environment.PRETIX_HOSTNAME | quote }}
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: pretix-data
+          mountPath: /data
+        {{- if .Values.pretix.config.enabled }}
+        - name: pretix-config
+          mountPath: {{ .Values.pretix.config.mountPath }}
+        {{- end }}
+      volumes:
+      - name: pretix-data
+        {{- if .Values.pretix.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: pretix-pvc
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- if .Values.pretix.config.enabled }}
+      - name: pretix-config
+        configMap:
+          name: pretix-config
+      {{- end }} 

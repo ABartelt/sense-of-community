@@ -1,0 +1,85 @@
+# Default values for pretix.
+# This is a YAML-formatted file.
+
+global:
+  domain: der-ttn.de
+
+pretix:
+  image:
+    repository: pretix/standalone
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  hostname: licenses.{{ .Values.global.domain }}
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  config:
+    secret: ""  # Will be set via secrets
+    database:
+      backend: postgresql
+      name: pretix
+      user: pretix
+      password: ""  # Will be set via secrets
+      host: pretix-postgresql
+      port: 5432
+    redis:
+      host: pretix-redis
+      port: 6379
+      password: ""  # Will be set via secrets
+    mail:
+      host: smtp.{{ .Values.global.domain }}
+      port: 587
+      username: pretix
+      password: ""  # Will be set via secrets
+      use_tls: true
+      from: pretix@{{ .Values.global.domain }}
+
+postgresql:
+  enabled: true
+  service:
+    name: pretix-postgresql
+  auth:
+    username: pretix
+    database: pretix
+  primary:
+    persistence:
+      size: 10Gi
+      storageClass: standard
+
+redis:
+  enabled: true
+  auth:
+    password: ""  # Will be set via secrets
+  master:
+    persistence:
+      size: 5Gi
+      storageClass: standard
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: licenses.{{ .Values.global.domain }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: pretix-tls
+      hosts:
+        - licenses.{{ .Values.global.domain }}
+
+secrets:
+  pretix:
+    secret: ""  # Will be set during installation
+  postgresql:
+    password: ""  # Will be set during installation
+  redis:
+    password: ""  # Will be set during installation
+  mail:
+    password: ""  # Will be set during installation 

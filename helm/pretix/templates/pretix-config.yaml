@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pretix-config
+  labels:
+    app: pretix
+data:
+  pretix.cfg: |
+    [pretix]
+    instance_name={{ .Values.config.instanceName }}
+    url=https://{{ .Values.hostname }}
+    currency=EUR
+    datadir=/data
+    trust_x_forwarded_for=on
+    trust_x_forwarded_proto=on
+
+    [database]
+    backend=postgresql
+    name={{ .Values.externalDatabase.database }}
+    user={{ .Values.externalDatabase.user }}
+    password={{ .Values.externalDatabase.password }}
+    host={{ .Values.externalDatabase.host }}
+    port={{ .Values.externalDatabase.port }}
+
+    [mail]
+    from={{ .Values.mail.from }}
+    host={{ .Values.mail.host }}
+    user={{ .Values.mail.user }}
+    password={{ .Values.mail.password }}
+    port={{ .Values.mail.port }}
+    tls={{ .Values.mail.tls }}
+    ssl={{ .Values.mail.ssl }}
+    admins={{ .Values.mail.admins }}
+
+    [redis]
+    location=redis://{{ .Values.externalRedis.host }}:{{ .Values.externalRedis.port }}/1
+    sessions=true
+
+    [celery]
+    backend=redis://{{ .Values.externalRedis.host }}:{{ .Values.externalRedis.port }}/0
+    broker=redis://{{ .Values.externalRedis.host }}:{{ .Values.externalRedis.port }}/0 
