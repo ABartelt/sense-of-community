@@ -49,18 +49,15 @@ ansible-playbook -i hosts microk8s-playbook.yml
 
 The playbook installs MicroK8s with the following plugins enabled:
 
-- DNS (1.1.1.1)
-- Ingress
-- Metrics Server
-- Cert Manager
-- OpenEBS
-- Dashboard
-- Storage
-- Helm3
-- MetalLB
-- Prometheus
-- Traefik
-- Portainer
+- Dashboard (Kubernetes web interface)
+- DNS (CoreDNS for cluster DNS resolution)
+- Helm3 (Kubernetes package manager)
+- Storage (Storage class for persistent volumes)
+- Ingress (Ingress controller for external access)
+- Metrics Server (K8s Metrics Server for API access to service metrics)
+- MetalLB (Loadbalancer for your Kubernetes cluster)
+- Prometheus (Prometheus operator for monitoring and logging)
+- Traefik (Traefik Ingress controller for external access)
 
 ## Post-Installation
 
@@ -74,16 +71,12 @@ microk8s kubectl get nodes
 microk8s dashboard-proxy
 ```
 
-3. Change the root password:
-```bash
-passwd root
-```
-
 ## Security Notes
 
-- The default root password is set to "test123" - this should be changed immediately after installation
 - Ensure your SSH keys are properly secured
 - Review and adjust the enabled plugins based on your security requirements
+- Consider setting up RBAC for better access control
+- Regularly update MicroK8s and its components for security patches
 
 ## Troubleshooting
 
