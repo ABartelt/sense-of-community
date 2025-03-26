@@ -84,7 +84,6 @@ If you encounter connection issues:
 1. Verify the server is accessible via SSH
 2. Check if the security group/firewall allows SSH access
 3. Ensure the SSH key path is correct in the hosts file
-4. Verify snapd is installed on the target system
 
 ## Files
 
