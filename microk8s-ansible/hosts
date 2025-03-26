@@ -1,0 +1,9 @@
+[microk8s_HA]
+master ansible_ssh_host=152.53.119.99
+
+[microk8s_WORKERS]
+
+[all:vars]
+ansible_ssh_user=root
+ansible_ssh_private_key_file=~/.ssh/id_ed25519
+microk8s_version=1.23/stable 

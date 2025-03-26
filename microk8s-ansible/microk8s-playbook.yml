@@ -1,0 +1,65 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Install snapd
+      apt:
+        name: snapd
+        state: present
+        update_cache: yes
+
+    - name: Install MicroK8s
+      community.general.snap:
+        name: microk8s
+        classic: yes
+        state: present
+
+    - name: Wait for MicroK8s to report ready
+      command: microk8s status --wait-ready
+      register: microk8s_status
+      retries: 30
+      delay: 5
+      until: microk8s_status.rc == 0
+      become: true
+
+    - name: Enable MicroK8s addons
+      command: "microk8s enable {{ item }}"
+      loop:
+        - dashboard
+        - dns
+        - helm3
+        - storage
+        #- registry
+        - ingress
+        - traefik
+        - metrics-server
+        #- openebs
+        - prometheus
+        #-portainer
+
+    
+    - name: Create alias for kubectl
+      lineinfile:
+        path: /root/.bashrc
+        line: 'alias mkctl="microk8s kubectl"'
+        create: yes
+
+    - name: Apply alias for current session
+      shell: alias mkctl="microk8s kubectl"
+
+    - name: Check cluster status
+      command: microk8s kubectl get all --all-namespaces
+      register: cluster_status
+
+    - name: Show cluster status
+      debug:
+        var: cluster_status.stdout_lines
+
+    - name: Display kubectl usage information
+      debug:
+        msg:
+          - "MicroK8s installation completed successfully!"
+          - "You can now use the following commands:"
+          - "1. Use 'mkctl' as an alias for 'microk8s kubectl'"
+          - "2. Get your kubeconfig with: microk8s config"
+          - "3. Access the dashboard with: microk8s dashboard-proxy"
