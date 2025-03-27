@@ -1,22 +1,44 @@
 apiVersion: v2
-name: community-services
-description: A Helm chart for community services including Pretix and ShiftPlanner
+name: sense-of-community
+description: A Helm chart for managing all community services including Pretix and ShiftPlanner
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
 
 dependencies:
+  # Database
   - name: postgresql-ha
     version: "15.3.8"
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql-ha.enabled
+    alias: shared-postgres
 
+  # Caching
   - name: redis-cluster
     version: "9.3.3"
     repository: https://charts.bitnami.com/bitnami
     condition: redis-cluster.enabled
+    alias: shared-redis
 
+  # Authentication
   - name: keycloak
     version: "14.3.0"
     repository: https://charts.bitnami.com/bitnami
     condition: keycloak.enabled 
+    alias: shared-keycloak
+
+  # Applications
+  - name: pretix
+    version: 0.1.0
+    repository: file://charts/pretix
+    condition: pretix.enabled
+
+  - name: shiftplanner
+    version: 0.1.0
+    repository: file://charts/shiftplanner
+    condition: shiftplanner.enabled
+
+  - name: odoo
+    version: 0.1.0
+    repository: file://charts/odoo
+    condition: odoo.enabled 

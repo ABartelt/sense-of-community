@@ -6,11 +6,11 @@ version: 0.1.0
 appVersion: "stable"
 
 dependencies:
-  - name: redis
-    version: "17.15.3"
+  - name: redis-cluster
+    version: "11.4.6"
     repository: https://charts.bitnami.com/bitnami
-    condition: redis.enabled
-  - name: postgresql
-    version: "12.5.6"
+    condition: redis-cluster.enabled
+  - name: postgresql-ha
+    version: "15.3.8"
     repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.enabled 
+    condition: postgresql-ha.enabled 

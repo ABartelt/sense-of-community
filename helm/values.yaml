@@ -99,3 +99,123 @@ pretix:
       value: "6379"
     - name: REDIS_PASSWORD
       value: ${REDIS_PASSWORD} 
+global:
+  domain: der-ttn.de
+  subdomains:
+    odoo: pos
+    pretix: licenses
+    shiftplanner:
+      main: doppelschicht
+      api: api-doppelschicht
+      keycloak: connect
+
+# Shared Services
+postgresql-ha:
+  enabled: true
+  auth:
+    username: shared
+    database: shared
+    password: ""  # Will be set via secrets
+  primary:
+    persistence:
+      size: 20Gi
+  read:
+    replicaCount: 1
+  service:
+    type: ClusterIP
+
+redis-cluster:
+  enabled: true
+  master:
+    persistence:
+      size: 10Gi
+  replica:
+    replicaCount: 1
+  service:
+    type: ClusterIP
+
+keycloak:
+  enabled: true
+  auth:
+    adminUser: admin
+    adminPassword: ""  # Will be set via secrets
+  ingress:
+    enabled: true
+    hostname: {{ .Values.global.subdomains.shiftplanner.keycloak }}.{{ .Values.global.domain }}
+    tls: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: shared-postgres-postgresql-ha
+    port: 5432
+    user: shared
+    database: shared
+    password: ""  # Will be set via secrets
+
+# Applications
+pretix:
+  enabled: true
+  hostname: {{ .Values.global.subdomains.pretix }}.{{ .Values.global.domain }}
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: shared-postgres-postgresql-ha
+    port: 5432
+    user: shared
+    database: pretix
+    password: ""  # Will be set via secrets
+  redis:
+    enabled: false
+  externalRedis:
+    host: shared-redis-master
+    port: 6379
+    password: ""  # Will be set via secrets
+
+shiftplanner:
+  enabled: true
+  hostname: {{ .Values.global.subdomains.shiftplanner.main }}.{{ .Values.global.domain }}
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: shared-postgres-postgresql-ha
+    port: 5432
+    user: shared
+    database: shiftplanner
+    password: ""  # Will be set via secrets
+  redis:
+    enabled: false
+  externalRedis:
+    host: shared-redis-master
+    port: 6379
+    password: ""  # Will be set via secrets
+  keycloak:
+    enabled: false
+  externalKeycloak:
+    url: https://{{ .Values.global.subdomains.shiftplanner.keycloak }}.{{ .Values.global.domain }}
+    realm: shiftplanner
+    clientId: shiftplanner
+    clientSecret: ""  # Will be set via secrets
+
+odoo:
+  enabled: true
+  hostname: {{ .Values.global.subdomains.odoo }}.{{ .Values.global.domain }}
+  postgresql:
+    enabled: false
+  externalDatabase:
+    host: shared-postgres-postgresql-ha
+    port: 5432
+    user: shared
+    database: odoo
+    password: ""  # Will be set via secrets
+
+# Secrets
+secrets:
+  postgres:
+    password: ""  # Will be set during installation
+  redis:
+    password: ""  # Will be set during installation
+  keycloak:
+    adminPassword: ""  # Will be set during installation
+    clientSecret: ""  # Will be set during installation 
