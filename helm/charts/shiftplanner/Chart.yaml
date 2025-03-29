@@ -1,20 +1,40 @@
 apiVersion: v2
 name: shiftplanner
-description: A Helm chart for ShiftPlanner application with Keycloak and PostgreSQL
+description: A Helm chart for Kubernetes
 type: application
 version: 0.1.0
-appVersion: "1.2"
+appVersion: "1.16.0"
+keywords:
+  - shiftplanner
+  - scheduling
+  - kubernetes
+  - helm
 
+# The URL to the source code of this chart
+sources:
+  - https://github.com/example/shiftplanner
+
+# The URL to the documentation of this chart
+home: https://example.com/shiftplanner
+
+# The maintainers of this chart
+maintainers:
+  - name: Bastian schilling
+    url: https://github.com/Muchntuchn
+  - name: Arne Bartelt
+    url: https://github.com/ABartelt
+
+# The icon URL for this chart
+icon: https://example.com/shiftplanner/icon.png
+
+# The dependencies of this chart
 dependencies:
-  - name: postgresql-ha
-    version: "15.3.8"
+  - name: postgresql
+    version: 10.3.11
     repository: https://charts.bitnami.com/bitnami
-    condition: postgresql-ha.enabled
+    condition: postgresql.enabled
   - name: keycloak
-    version: "14.3.0"
+    version: 14.3.0
     repository: https://charts.bitnami.com/bitnami
     condition: keycloak.enabled
-  - name: redis-cluster
-    version: "8.6.3"
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis-cluster.enabled 
+

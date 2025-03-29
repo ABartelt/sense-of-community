@@ -1,0 +1,4 @@
+metadata:
+  name: {{ include "shiftplanner.fullname" . }}-config
+  labels:
+    {{ include "shiftplanner.labels" . | nindent 4 }} 

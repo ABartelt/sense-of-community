@@ -1,228 +1,194 @@
-global:
-  domain: der-ttn.de
+# Default values for shiftplanner.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
-postgresql-ha:
-  enabled: true
-  auth:
-    username: keycloak
-    password: ${KEYCLOAK_POSTGRES_PASSWORD}
-    database: keycloak
-  primary:
-    persistence:
-      enabled: true
-      size: 10Gi
-  read:
-    replicaCount: 1
-    persistence:
-      enabled: true
-      size: 10Gi
-  initdb:
-    scripts:
-      init.sql: |
-        CREATE USER ${MUDDI_POSTGRES_USER} WITH PASSWORD '${MUDDI_POSTGRES_PASSWORD}';
-        CREATE DATABASE ${MUDDI_POSTGRES_DB} ENCODING UTF8;
-        GRANT ALL PRIVILEGES ON DATABASE ${MUDDI_POSTGRES_DB} TO ${MUDDI_POSTGRES_USER};
-        ALTER DATABASE ${MUDDI_POSTGRES_DB} OWNER TO ${MUDDI_POSTGRES_USER};
-  ingress:
-    enabled: false
-
-postgresBackup:
-  enabled: true
-  image:
-    repository: postgres
-    tag: "latest"
-  schedule: "0 * * * *"  # Every hour
-  retentionDays: 7
-  volume:
-    size: 10Gi
-    mountPath: /var/backup
-  script: |
-    #!/bin/bash
-    set -e
-    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-    BACKUP_DIR="/var/backup"
-    
-    # Backup Keycloak database
-    pg_dump -h postgresql-ha-postgresql -U keycloak -d keycloak > "${BACKUP_DIR}/keycloak_${TIMESTAMP}.sql"
-    
-    # Backup Muddi database
-    pg_dump -h postgresql-ha-postgresql -U ${MUDDI_POSTGRES_USER} -d ${MUDDI_POSTGRES_DB} > "${BACKUP_DIR}/muddi_${TIMESTAMP}.sql"
-    
-    # Cleanup old backups
-    find ${BACKUP_DIR} -type f -name "*.sql" -mtime +${RETENTION_DAYS} -delete
-
-keycloak:
-  enabled: true
-  auth:
-    adminUser: admin
-    adminPassword: ${KEYCLOAK_ADMIN_PASSWORD}
-  postgresql:
-    enabled: false
-    external:
-      host: postgresql-ha-postgresql
-      port: 5432
-      user: keycloak
-      database: keycloak
-      password: ${KEYCLOAK_POSTGRES_PASSWORD}
-  ingress:
-    enabled: true
-    hostname: connect.{{ .Values.global.domain }}
-    tls: true
-    extraTls:
-      - hosts:
-          - connect.{{ .Values.global.domain }}
-        secretName: letsencrypt
-  proxy: edge
-  hostname:
-    strict: false
-    strictBackchannel: false
-    admin: connect.{{ .Values.global.domain }}
-    adminURL: https://connect.{{ .Values.global.domain }}/admin/
-    frontendURL: https://connect.{{ .Values.global.domain }}/
-
-redis-cluster:
-  enabled: true
-  auth:
-    enabled: false
-  master:
-    persistence:
-      enabled: true
-      size: 5Gi
-  replica:
-    replicaCount: 1
-    persistence:
-      enabled: true
-      size: 5Gi
-  service:
-    ports:
-      redis: 6379
-  ingress:
-    enabled: false
-
-shiftPlannerApi:
-  image:
-    repository: ghcr.io/muddi-markt/shiftplanner/api
-    tag: "v1.2"
-  environment:
-    Database__USER: ${MUDDI_POSTGRES_USER}
-    Database__Name: ${MUDDI_POSTGRES_DB}
-    Database__HOST: postgresql-ha-postgresql
-    Database__PORT: 5432
-    MuddiConnect__AdminPassword: admin
-    Cors__Origins__0: "https://doppelschicht.{{ .Values.global.domain }},https://connect.{{ .Values.global.domain }},localhost"
-  ingress:
-    enabled: true
-    hostname: api-doppelschicht.{{ .Values.global.domain }}
-    tls:
-      enabled: true
-      certResolver: letsencrypt
-    annotations:
-      traefik.ingress.kubernetes.io/router.middlewares: cors-middleware
-
-shiftPlannerClient:
-  image:
-    repository: ghcr.io/muddi-markt/shiftplanner/client
-    tag: "v1.2"
-  ingress:
-    enabled: true
-    hostname: doppelschicht.{{ .Values.global.domain }}
-    tls:
-      enabled: true
-      certResolver: letsencrypt
-  volumeMounts:
-    - name: client-config
-      mountPath: /usr/share/nginx/html
-  volumes:
-    - name: client-config
-      configMap:
-        name: client-config
 
 secrets:
-  postgres:
-    adminPassword: ""  # To be set during deployment
-    keycloakPassword: ""  # To be set during deployment
-    muddiUser: ""  # To be set during deployment
-    muddiPassword: ""  # To be set during deployment
-    muddiDb: ""  # To be set during deployment
+  keycloak:
+    auth:
+      enabled: true
+      name: keycloak-auth-credentials
+  postgresql:
+    enabled: true
+    name: "postgresql-secret"
 
-# Application settings
-app:
-  name: shiftplanner
-  image:
-    repository: your-registry/shiftplanner
-    tag: latest
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
 
-# API settings
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: ghcr.io/muddi-markt/shiftplanner
+  clientImage: client
+  apiImage: api
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v1.2"
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+
+keycloakOverrideBaseUrl: ""
+
 api:
-  hostname: api.doppelschicht.{{ .Values.global.domain }}
-  ingress:
-    enabled: true
-    className: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+  databaseUser: shiftplanner-user
+  databaseName: shiftplanner-db
+  databaseHost: shiftplanner-postgresql
+  databasePort: 5432
+  corsOrigins0: ""
 
-# Client settings
-client:
-  hostname: doppelschicht.{{ .Values.global.domain }}
-  ingress:
-    enabled: true
-    className: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
-# Keycloak settings
-keycloak:
-  url: connect.{{ .Values.global.domain }}
-  realm: muddi
-  adminUser: admin
-  adminPassword: admin
-  ingress:
-    enabled: true
-    className: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
-# Database settings
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
 postgresql:
   enabled: true
+  nameOverride: shiftplanner-postgresql
+  fullnameOverride: shiftplanner-postgresql
   auth:
-    username: shiftplanner
-    database: shiftplanner
-    password: shiftplanner
+    existingSecret: postgresql-secret
   primary:
-    persistence:
-      size: 10Gi
-      storageClass: standard
+    initdb:
+      scriptsSecret: pg-init
+    resources:
+      limits:
+        cpu: "300m"
+        memory: "512Mi"
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+  serviceAccount:
+    create: true
 
-# Redis settings
-redis:
+keycloak:
   enabled: true
+  externalDatabase:
+    existingSecret: postgresql-secret
+    existingSecretPasswordKey: keycloak-password
+    host: shiftplanner-postgresql
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+  ingress:
+      servicePort: 80
   auth:
-    password: shiftplanner
-  master:
-    persistence:
-      size: 5Gi
-      storageClass: standard
+    existingSecret: keycloak-auth-credentials
+  startupProbe:
+    enabled: true
+  postgresql:
+    enabled: false
+  keycloakConfigCli:
+    enabled: false
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "256Mi"
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+    existingConfigmap: keycloak-realm-configmap
 
-# Backup settings
-backup:
-  enabled: true
-  schedule: "0 2 * * *"  # Daily at 2 AM
-  s3Bucket: shiftplanner-backups
-  awsRegion: eu-central-1
-  keepBackups: 7
-
-# Logging settings
-logging:
-  defaultLevel: Information
-  aspNetCoreLevel: Warning
-  hubConnectionLevel: Information
-  systemLevel: Warning 

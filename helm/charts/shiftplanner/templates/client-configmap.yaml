@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "shiftplanner.fullname" . }}-client
+  labels:
+    {{ include "shiftplanner.labels" . | nindent 4 }}
+data:
+  appsettings.json: |
+    {
+      "OAuth": {
+        "Audience": "shift-planner",
+        "Authority": "https://connect.technotuev.de/realms/muddi",
+        "AdminUser": "api-admin@muddimarkt.org",
+        "AdminPassword": "$MuddiConnect__AdminPassword"
+      },
+      "ShiftApi": {
+        "BaseUrl": "https://api-doppelschicht.technotuev.de"
+      },
+      "Cors": {
+        "Origins": [
+          "{{ .Values.api.corsOrigins0 }}"
+        ]
+      },
+      "Logging": {
+        "LogLevel": {
+          "Default": "Error",
+          "Microsoft.AspNetCore": "Warning",
+          "HubConnection": "Warning",
+          "System": "None"
+        }
+      }
+    }
+  manifest.json: |
+    {
+      "name": "Techno TÜV Nord Schichtplanner",
+      "short_name": "TTN-shifts",
+      "start_url": "./",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#090786",
+      "prefer_related_applications": false,
+      "icons": [
+        {
+          "src": "favicon.png",
+          "type": "image/png",
+          "sizes": "192x192"
+        },
+        {
+          "src": "favicon.ico",
+          "type": "image/x-icon",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  customization.css: |
+    :root {
+      --main-primary: #090786;
+    }
+
