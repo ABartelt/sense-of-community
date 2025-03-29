@@ -50,6 +50,16 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          volumeMounts:
+            - name: client-config
+              mountPath: /usr/share/nginx/html/appsettings.json
+              subPath: appsettings.json
+            - name: client-config
+              mountPath: /usr/share/nginx/html/manifest.json
+              subPath: manifest.json
+            - name: client-config
+              mountPath: /usr/share/nginx/html/customization/customization.css
+              subPath: customization.css
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -66,6 +76,10 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      volumes:
+        - name: client-config
+          configMap:
+            name: {{ include "shiftplanner.fullname" . }}-client
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

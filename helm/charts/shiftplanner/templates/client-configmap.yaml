@@ -9,17 +9,15 @@ data:
     {
       "OAuth": {
         "Audience": "shift-planner",
-        "Authority": "https://connect.technotuev.de/realms/muddi",
+        "Authority": "{{ include "shiftplanner.keycloakHost" . }}",
         "AdminUser": "api-admin@muddimarkt.org",
         "AdminPassword": "$MuddiConnect__AdminPassword"
       },
       "ShiftApi": {
-        "BaseUrl": "https://api-doppelschicht.technotuev.de"
+        "BaseUrl": {{ printf "https://%s" .Values.api.baseURL | quote }}
       },
       "Cors": {
-        "Origins": [
-          "{{ .Values.api.corsOrigins0 }}"
-        ]
+        "Origins": {{ toJson .Values.api.corsOrigins0 | quote }}
       },
       "Logging": {
         "LogLevel": {
@@ -32,8 +30,8 @@ data:
     }
   manifest.json: |
     {
-      "name": "Techno TÜV Nord Schichtplanner",
-      "short_name": "TTN-shifts",
+      "name": "{{ .Values.client.manifest.name }}",
+      "short_name": "{{ .Values.client.manifest.shortName }}",
       "start_url": "./",
       "display": "standalone",
       "background_color": "#ffffff",

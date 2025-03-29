@@ -75,7 +75,14 @@ api:
   databaseName: shiftplanner-db
   databaseHost: shiftplanner-postgresql
   databasePort: 5432
-  corsOrigins0: ""
+  baseURL: ""
+  corsOrigins0: 
+    - localhost
+
+client:
+  manifest:
+    name:
+    shortName:
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
