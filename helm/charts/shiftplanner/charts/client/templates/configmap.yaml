@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "shiftplanner.fullname" . }}-client
+  name: {{ include "client.fullname" . }}
   labels:
-    {{ include "shiftplanner.labels" . | nindent 4 }}
+    {{ include "client.labels" . | nindent 4 }}
 data:
   appsettings.json: |
     {
       "OAuth": {
         "Audience": "shift-planner",
-        "Authority": "{{ include "shiftplanner.keycloakHost" . }}",
+        "Authority": "https://{{ include "client.keycloakHost" . }}/realms/muddi",
         "AdminUser": "api-admin@muddimarkt.org",
         "AdminPassword": "$MuddiConnect__AdminPassword"
       },
@@ -30,8 +30,8 @@ data:
     }
   manifest.json: |
     {
-      "name": "{{ .Values.client.manifest.name }}",
-      "short_name": "{{ .Values.client.manifest.shortName }}",
+      "name": "{{ .Values.manifest.name }}",
+      "short_name": "{{ .Values.manifest.shortName }}",
       "start_url": "./",
       "display": "standalone",
       "background_color": "#ffffff",

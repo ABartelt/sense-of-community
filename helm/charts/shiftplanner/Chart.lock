@@ -1,0 +1,15 @@
+dependencies:
+- name: api
+  repository: file://./charts/api
+  version: 0.1.0
+- name: client
+  repository: file://./charts/client
+  version: 0.1.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.6.0
+- name: keycloak
+  repository: https://charts.bitnami.com/bitnami
+  version: 24.5.0
+digest: sha256:a12c682b7f11d668155dd6a2927a16fa0e307421c7bc2fb3115e39bf776311e5
+generated: "2025-04-06T22:08:38.423372415+02:00"

@@ -1,0 +1,50 @@
+dns:
+  client: &client doppelschicht.der-ttn.de
+  api: &api doppelschicht-api.der-ttn.de
+  keycloak: &keycloak connect.der-ttn.de
+
+  
+api:
+  baseURL: *api
+  corsOrigins0:
+    - localhost
+    - *keycloak
+    - *client
+  ingress:
+    enabled: true
+    hosts:
+      - host: *api
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+
+
+client:
+  keycloakOverrideBaseUrl: *keycloak
+  api:
+    baseURL: *api
+    corsOrigins0: 
+      - localhost
+      - *keycloak
+      - *client
+  manifest:
+    name: Techno TÜV Nord Schichtplanner
+    shortName: TTN-shifts
+  ingress:
+    enabled: true
+    hosts:
+      - host: *client
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+
+
+keycloak:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - host: *keycloak
+        paths:
+          - path: /
+            pathType: ImplementationSpecific

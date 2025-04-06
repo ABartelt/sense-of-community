@@ -29,12 +29,20 @@ icon: https://example.com/shiftplanner/icon.png
 
 # The dependencies of this chart
 dependencies:
+  - name: api
+    version: 0.1.0
+    repository: file://./charts/api
+    condition: api.enabled
+  - name: client
+    version: 0.1.0
+    repository: file://./charts/client
+    condition: client.enabled
   - name: postgresql
-    version: 10.3.11
+    version: 16.6.0
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: keycloak
-    version: 14.3.0
+    version: 24.5.0
     repository: https://charts.bitnami.com/bitnami
     condition: keycloak.enabled
 

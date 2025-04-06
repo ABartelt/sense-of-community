@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "api.fullname" . }}
+  labels:
+    {{ include "api.labels" . | nindent 4 }}
+data:
+  Database__USER: {{ .Values.database.user | quote }}
+  Database__Name: {{ .Values.database.name | quote }}
+  Database__HOST: {{ .Values.database.host | quote }}
+  Database__PORT: {{ .Values.database.port | quote }}
+  Cors__Origins__0: {{ toJson .Values.corsOrigins0 | quote }}
