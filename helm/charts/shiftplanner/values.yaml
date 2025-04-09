@@ -32,10 +32,13 @@ client:
 
 postgresql:
   enabled: true
+  image:
+    debug: true
   nameOverride: shiftplanner-postgresql
   fullnameOverride: shiftplanner-postgresql
   auth:
-    existingSecret: postgresql-secret
+    existingSecret: "postgresql-secret"
+    usePasswordFiles: false
   primary:
     initdb:
       scriptsSecret: pg-init

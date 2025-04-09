@@ -169,7 +169,7 @@ metadata:
     "helm.sh/resource-policy": keep
 type: Opaque
 data:
-  MuddiConnect__AdminPassword: "NFFvbVdweFV1d1lnNmhoUg=="
+  MuddiConnect__AdminPassword: "NWdJdHR1NExRQ1BUSWxXVg=="
 ---
 # Source: shiftplanner/templates/keycloak-auth-secret.yaml
 apiVersion: v1
@@ -181,8 +181,8 @@ metadata:
     "helm.sh/resource-policy": keep
 type: Opaque
 data:
-  admin-password: "aFdTUkFzaUxGbGhxRldlaw=="
-  management-password: "eXN5dVRBQmtUZWVwRWlyUw=="
+  admin-password: "bHhUbFZId1hmTmxJdXlHSw=="
+  management-password: "TkxHZU1LaFNEUUdRelV4eA=="
 ---
 # Source: shiftplanner/templates/postgresql-secrets.yaml
 apiVersion: v1
@@ -194,10 +194,10 @@ metadata:
     "helm.sh/resource-policy": keep
 type: Opaque
 data:
-  password: "Y2VuRFhjdURjaERGYkRCT2htc3dXZmVRRkFtalVnWHM="
-  postgres-password: "bGdFRENmQXB6TmNzWm9vVWFHVnRxcEpmV1BnclNSR3Y="
-  keycloak-password: aWp6UWpaS3pJWVlHU1l6aVBQb1ZPa29yWkd1T29vVXg=
-  shiftplanner-password: Z1VJZmdVSlZxSUdYYWlqeFlFakJYaEhTSGRobm9NTVk=
+  password: "QmVYTXFvT3VjZlBpbFR0RmxIS1JqeG1jakJoZGxCaW4="
+  postgres-password: "cHRPUm5Vb1JadFB4b3JlRU16dUtRaHR3WWdVeFZNVHU="
+  keycloak-password: cXVaSHVKRmh4WHpuRk1yTFpUa3FWaGNnUUhxUE1hVng=
+  shiftplanner-password: VlNmV3BOT2h2bWthWE9uUXJoSU9DTUZOSXNmaURSbHQ=
 ---
 # Source: shiftplanner/templates/postgresql-secrets.yaml
 apiVersion: v1
@@ -210,14 +210,14 @@ stringData:
     --keycloak
     CREATE DATABASE bitnami_keycloak;
 
-    CREATE USER bn_keycloak  WITH encrypted password 'ijzQjZKzIYYGSYziPPoVOkorZGuOooUx';
+    CREATE USER bn_keycloak  WITH encrypted password 'quZHuJFhxXznFMrLZTkqVhcgQHqPMaVx';
     
     GRANT ALL PRIVILEGES ON DATABASE bitnami_keycloak TO bn_keycloak;
     ALTER DATABASE bitnami_keycloak OWNER TO bn_keycloak;
 
     --shiftplanner
     CREATE DATABASE shiftplanner-db;
-    CREATE USER shiftplanner-user  WITH encrypted password 'gUIfgUJVqIGXaijxYEjBXhHSHdhnoMMY';
+    CREATE USER shiftplanner-user  WITH encrypted password 'VSfWpNOhvmkaXOnQrhIOCMFNIsfiDRlt';
     
     GRANT ALL PRIVILEGES ON DATABASE shiftplanner-db TO shiftplanner-user;
     ALTER DATABASE shiftplanner-db OWNER TO shiftplanner-user;
@@ -308,11 +308,11 @@ metadata:
     app.kubernetes.io/version: "1.16.0"
     app.kubernetes.io/managed-by: Helm
 data:
-  Database__USER: shiftplanner-user
-  Database__Name: shiftplanner-db
-  Database__HOST: shiftplanner-postgresql
-  Database__PORT: 5432
-  Cors__Origins__0: ["localhost","connect.der-ttn.de","doppelschicht.der-ttn.de"]
+  Database__USER: "shiftplanner-user"
+  Database__Name: "shiftplanner-db"
+  Database__HOST: "shiftplanner-postgresql"
+  Database__PORT: "5432"
+  Cors__Origins__0: "[\"localhost\",\"connect.der-ttn.de\",\"doppelschicht.der-ttn.de\"]"
 ---
 # Source: shiftplanner/charts/client/templates/configmap.yaml
 apiVersion: v1
@@ -395,7 +395,7 @@ data:
   KEYCLOAK_HTTP_PORT: "8080"
   KEYCLOAK_PROXY_HEADERS: ""
   KEYCLOAK_HOSTNAME: |-
-    http://keycloak.local/
+    http://connect.der-ttn.de/
   KEYCLOAK_HOSTNAME_STRICT: "false"
   KEYCLOAK_ENABLE_STATISTICS: "false"
   KEYCLOAK_DATABASE_HOST: "shiftplanner-postgresql"
@@ -2883,7 +2883,7 @@ spec:
       serviceAccountName: test-api
       containers:
         - name: api
-          image: "ghcr.io/muddi-markt/shiftplanner/api:v1.2"
+          image: "ghcr.io/muddi-markt/shiftplanner/api:v1.2.8"
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
@@ -2941,7 +2941,7 @@ spec:
       serviceAccountName: test-client
       containers:
         - name: client
-          image: "ghcr.io/muddi-markt/shiftplanner/client/:v1.2"
+          image: "ghcr.io/muddi-markt/shiftplanner/client/:v1.2.8"
           imagePullPolicy: IfNotPresent
           env:
           - name: MuddiConnect__AdminPassword
@@ -3005,7 +3005,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap-env-vars: f73fcc849e3da02e7898710569f0bbaa6077fbf46bd128738e5239478f406bea
+        checksum/configmap-env-vars: c21774862228c69f1ada726f3b33e69d51fd1739dfd4dc9b2cf6de97d1bfd2ee
       labels:
         app.kubernetes.io/instance: test
         app.kubernetes.io/managed-by: Helm
@@ -3273,8 +3273,11 @@ spec:
             - name: PGDATA
               value: "/bitnami/postgresql/data"
             # Authentication
-            - name: POSTGRES_PASSWORD_FILE
-              value: /opt/bitnami/postgresql/secrets/postgres-password
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: postgres-password
             # LDAP
             - name: POSTGRESQL_ENABLE_LDAP
               value: "no"
@@ -3342,8 +3345,6 @@ spec:
               subPath: app-tmp-dir
             - name: custom-init-scripts-secret
               mountPath: /docker-entrypoint-initdb.d/secret
-            - name: postgresql-password
-              mountPath: /opt/bitnami/postgresql/secrets/
             - name: dshm
               mountPath: /dev/shm
             - name: data
@@ -3351,9 +3352,6 @@ spec:
       volumes:
         - name: empty-dir
           emptyDir: {}
-        - name: postgresql-password
-          secret:
-            secretName: postgresql-secret
         - name: custom-init-scripts-secret
           secret:
             secretName: pg-init
@@ -3384,6 +3382,7 @@ metadata:
     app.kubernetes.io/version: "1.16.0"
     app.kubernetes.io/managed-by: Helm
 spec:
+  ingressClassName: public
   rules:
     - host: "doppelschicht-api.der-ttn.de"
       http:
@@ -3408,6 +3407,7 @@ metadata:
     app.kubernetes.io/version: "1.16.0"
     app.kubernetes.io/managed-by: Helm
 spec:
+  ingressClassName: public
   rules:
     - host: "doppelschicht.der-ttn.de"
       http:
@@ -3434,8 +3434,9 @@ metadata:
     helm.sh/chart: keycloak-24.5.0
     app.kubernetes.io/component: keycloak
 spec:
+  ingressClassName: "public"
   rules:
-    - host: "keycloak.local"
+    - host: "connect.der-ttn.de"
       http:
         paths:
           - path: /

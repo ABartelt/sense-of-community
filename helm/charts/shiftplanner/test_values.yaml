@@ -1,3 +1,7 @@
+global:
+  ingress:
+    className: &className public
+
 dns:
   client: &client doppelschicht.der-ttn.de
   api: &api doppelschicht-api.der-ttn.de
@@ -12,6 +16,7 @@ api:
     - *client
   ingress:
     enabled: true
+    className: *className
     hosts:
       - host: *api
         paths:
@@ -32,6 +37,7 @@ client:
     shortName: TTN-shifts
   ingress:
     enabled: true
+    className: *className
     hosts:
       - host: *client
         paths:
@@ -43,8 +49,5 @@ keycloak:
   enabled: true
   ingress:
     enabled: true
-    hosts:
-      - host: *keycloak
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
+    ingressClassName: *className
+    hostname: *keycloak
