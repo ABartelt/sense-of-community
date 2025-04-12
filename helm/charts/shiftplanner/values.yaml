@@ -75,7 +75,7 @@ keycloak:
   postgresql:
     enabled: false
   keycloakConfigCli:
-    enabled: false
+    enabled: true
     resources:
       limits:
         cpu: "100m"

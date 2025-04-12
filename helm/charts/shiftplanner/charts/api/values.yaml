@@ -54,8 +54,8 @@ keycloakOverrideBaseUrl: ""
 database:
   existingPasswordSecret: ""
   existingPasswordSecretKey: ""
-  user: shiftplanner-user
-  name: shiftplanner-db
+  user: shiftplanner_user
+  name: shiftplanner_db
   host: shiftplanner-postgresql
   port: 5432
 corsOrigins0: 

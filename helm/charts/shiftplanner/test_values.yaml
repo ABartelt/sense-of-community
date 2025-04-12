@@ -17,11 +17,19 @@ api:
   ingress:
     enabled: true
     className: *className
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      kubernetes.io/tls-acme: "true"
     hosts:
       - host: *api
         paths:
           - path: /
             pathType: ImplementationSpecific
+    tls:
+    - hosts:
+      - *api
+      - *client
+      secretName: tls-secret
 
 
 client:
@@ -38,16 +46,28 @@ client:
   ingress:
     enabled: true
     className: *className
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      kubernetes.io/tls-acme: "true"
     hosts:
       - host: *client
         paths:
           - path: /
             pathType: ImplementationSpecific
+    tls:
+    - hosts:
+      - *api
+      - *client
+      secretName: tls-secret
 
 
 keycloak:
   enabled: true
   ingress:
     enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      kubernetes.io/tls-acme: "true"
     ingressClassName: *className
     hostname: *keycloak
+    tls: true
