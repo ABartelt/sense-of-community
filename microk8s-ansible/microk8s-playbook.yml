@@ -12,6 +12,7 @@
       community.general.snap:
         name: microk8s
         classic: yes
+        channel: 1.32/stable
         state: present
 
     - name: Wait for MicroK8s to report ready
