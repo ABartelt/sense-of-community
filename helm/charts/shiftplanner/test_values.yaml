@@ -9,6 +9,8 @@ dns:
 
   
 api:
+  image:
+    tag: "v1.2.10"
   baseURL: *api
   corsOrigins0:
     - localhost
@@ -34,6 +36,8 @@ api:
 
 client:
   keycloakOverrideBaseUrl: *keycloak
+  image:
+    tag: "v1.2.9"
   api:
     baseURL: *api
     corsOrigins0: 

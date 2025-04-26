@@ -72,18 +72,20 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - name: client-config
+              mountPath: /usr/share/nginx/html/appsettings.json
+              subPath: appsettings.json
+            - name: client-config
+              mountPath: /usr/share/nginx/html/manifest.json
+              subPath: manifest.json
+            - name: client-config
+              mountPath: /usr/share/nginx/html/customization/customization.css
+              subPath: customization.css
       volumes:
         - name: client-config
           configMap:
             name: {{ include "client.fullname" . }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
