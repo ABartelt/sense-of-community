@@ -12,16 +12,18 @@ api:
   image:
     tag: "v1.2.10"
   baseURL: *api
-  corsOrigins0:
-    - localhost
-    - *keycloak
-    - *client
+  corsOrigins0: localhost,https://*keycloak,https://*client
   ingress:
     enabled: true
     className: *className
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
       kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-origin: "https://*.der-ttn.de"
+      nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, OPTIONS, DELETE"
+      nginx.ingress.kubernetes.io/cors-allow-headers: "Accept,Authorization,Content-Type,Locatee-Smart-Signage-Token"
+      nginx.ingress.kubernetes.io/cors-max-age: "100"
     hosts:
       - host: *api
         paths:

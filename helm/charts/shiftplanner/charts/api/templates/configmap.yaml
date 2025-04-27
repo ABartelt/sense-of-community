@@ -9,4 +9,4 @@ data:
   Database__Name: {{ .Values.database.name | quote }}
   Database__HOST: {{ .Values.database.host | quote }}
   Database__PORT: {{ .Values.database.port | quote }}
-  Cors__Origins__0: {{ toJson .Values.corsOrigins0 | quote }}
+  Cors__Origins__0: {{ .Values.corsOrigins0 | quote }}
