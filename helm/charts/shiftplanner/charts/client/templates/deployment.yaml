@@ -41,25 +41,17 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-          - name: MuddiConnect__AdminPassword
+          - name: AdminPassword
             valueFrom:
               secretKeyRef:
                 name: {{ .Values.admin.existingSecret }}
                 key: {{ .Values.admin.existingSecretKey }}
+          - name: AdminUser
+            value: {{ .Values.admin.userName }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          volumeMounts:
-            - name: client-config
-              mountPath: /usr/share/nginx/html/appsettings.json
-              subPath: appsettings.json
-            - name: client-config
-              mountPath: /usr/share/nginx/html/manifest.json
-              subPath: manifest.json
-            - name: client-config
-              mountPath: /usr/share/nginx/html/customization/customization.css
-              subPath: customization.css
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -82,10 +74,28 @@ spec:
             - name: client-config
               mountPath: /usr/share/nginx/html/customization/customization.css
               subPath: customization.css
+            - name: client-config
+              mountPath: /usr/share/nginx/html/customization/customization.json
+              subPath: customization.json
+            - name: favicon
+              mountPath: /usr/share/nginx/html/customization/favicon.ico
+              subPath: favicon.ico
+            - name: favicon
+              mountPath: /usr/share/nginx/html/avicon.ico
+              subPath: favicon.ico
+            - name: favicon
+              mountPath: /usr/share/nginx/html/customization/favicon.png
+              subPath: favicon.png
+            - name: favicon
+              mountPath: /usr/share/nginx/html/avicon.png
+              subPath: favicon.png
       volumes:
         - name: client-config
           configMap:
             name: {{ include "client.fullname" . }}
+        - name: favicon
+          configMap:
+            name: {{ include "client.fullname" . }}-favicon
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

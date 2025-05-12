@@ -10,8 +10,6 @@ data:
       "OAuth": {
         "Audience": "shift-planner",
         "Authority": "https://{{ include "client.keycloakHost" . }}/realms/muddi",
-        "AdminUser": "api-admin@muddimarkt.org",
-        "AdminPassword": "$MuddiConnect__AdminPassword"
       },
       "ShiftApi": {
         "BaseUrl": {{ printf "https://%s" .Values.api.baseURL | quote }}
@@ -54,4 +52,13 @@ data:
     :root {
       --main-primary: #090786;
     }
-
+  customization.json: |
+    {
+      "App": {
+        "Title": {{ .Values.customization.app.title | quote }},
+        "Subtitle": {{ .Values.customization.app.subtitle | quote }},
+        "StartTime": {{ .Values.customization.app.startTime | quote }},
+        "EndTime": {{ .Values.customization.app.endTime | quote }},
+        "Contact" : {{ .Values.customization.app.contact | quote }}
+      }
+    }

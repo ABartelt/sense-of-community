@@ -50,6 +50,7 @@ securityContext: {}
   # runAsUser: 1000
 
 keycloakOverrideBaseUrl: ""
+authority: ""
 
 database:
   existingPasswordSecret: ""
@@ -60,6 +61,7 @@ database:
   port: 5432
 corsOrigins0: 
   - localhost
+
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:

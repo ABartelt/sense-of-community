@@ -75,15 +75,27 @@ ingress:
 
 keycloakOverrideBaseUrl: ""
 admin:
+  userName: "api-admin@muddimarkt.org"
   existingSecret: ""
   existingSecretKey: ""
 api:
   baseURL: ""
   corsOrigins0: 
     - localhost
-manifest:
-  name:
-  shortName:
+manifest: {}
+  # name: ""
+  # shortName: ""
+customization: {}
+  # app:
+  #   title: ""
+  #   subtitle: ""
+  #   startTime: ""
+  #   endTime: ""
+  #   contact: ""
+favicon: {}
+  # binaryData:
+  #   ico:
+  #   png:
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
