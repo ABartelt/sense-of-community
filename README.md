@@ -1,6 +1,6 @@
 <img src="sense-of-community-logo.png" alt="drawing" width="300"/>
 
-Sense of community is a deployment of a tool set for private parties.
+Sense of community is a deployment of a tool set for events.
 The goal is to provide a toolchain to manage guests as well as helpers seamlessly. 
 The main application used for this purpose is [pretix](https://pretix.eu/about/en/).
 
